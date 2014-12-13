@@ -1,0 +1,136 @@
+<html ng-app="routerisk">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="../../favicon.ico">
+<!-- Bootstrap core CSS -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="css/dashboard.css" rel="stylesheet">
+<link rel="stylesheet" href="css/ol.css" type="text/css">
+<link href="css/style.css" rel="stylesheet">
+<title>R3 Analysis</title>
+</head>
+<body ng-controller="RouteRiskController">
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+					aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">RailRoad Risk</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav navbar-left">
+					<li><a href="index.html">Location Risk</a></li>
+					<li><a href="#">Route Risk</a></li>
+					<!--<li><a href="#">Risk Communication</a></li>-->
+					<li><a href="#">Help</a></li>
+				</ul>
+			<!-- 	<form class="navbar-form navbar-left">
+					<input type="text" class="form-control"
+						placeholder="Search Address...">
+				</form> -->
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-4 col-md-3 sidebar">
+				<form name="test" action="#">
+
+					<div class="form-group" ng-repeat="node in nodeNames" ng-show="node.visible">
+						<label for="{{node.displayName}}">{{node.displayName}}</label>
+						<div>
+					<input id="{{node.id}}" class="controls address-input animate-show" type="text" placeholder="Enter a location">
+						</div>
+					</div>
+										<button type="button" class="btn btn-success"
+						ng-click="addStation()">Add on route station</button>
+						</br>
+					<!-- <div class="form-group">
+						<label for="deststation">Destination</label>
+						<div>
+							<input id="destination" class="controls address-input" type="text" placeholder="Enter a location">
+						</div>
+					</div> -->
+					<div class="form-group">
+						<label for="noOfCars">Number of cars per train</label> <input type="text"
+							class="controls address-input" id="noOfCars" ng-model="noOfCars"
+							placeholder="No of cars...">
+					</div>
+					<div class="form-group">
+						<label for="trainspeed">Train speed (mph)</label> <input type="text"
+							class="controls address-input" id="trainspeed" ng-model="trainSpeed"
+							placeholder="Train speed...">
+					</div>
+					<div class="form-group">
+						<label for="cardesign">Tank car design</label>
+						<div>
+							<select class="controls address-input" id="cardesign" name="cardesign"
+								ng-model="tankCarDesign"
+								ng-options="c.name for c in tankCarDesigns"
+								placeholder="Tank Car Design..">
+							</select>
+						</div>
+
+					</div>
+										<button type="button" class="btn btn-success"
+						ng-click="calculateRisk()">Calculate Risk</button>
+					<button type="button" class="btn btn-primary"
+						ng-click="clearRoute()">Clear</button>
+
+				</form>
+			</div>
+			<div
+				class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 map-wrapper">
+				<div id=map></div>
+			</div>
+		</div>
+	</div>
+	<div id="popup" class="ol-popup">
+		<a href="#" id="popup-closer" class="ol-popup-closer"></a>
+		<div id="popup-content">
+			<div class="row">
+				<div class="col-md-12">
+					<h4>Route Risk</h4>
+				</div>
+			</div>
+			<div class="row" style="width:165px">
+				<div class="col-md-12">
+					<ul class="list-group">
+						<li class="list-group-item"><b>Risk: <span id="riskcontent"></span></b></li>
+						<li class="list-group-item"><b>Milage:<span id="routeLength"></span></b></li>
+					</ul>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/doc.min.js"></script>
+	<script src="js/ol.js"></script>
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<script src="js/ie10-viewport-bug-workaround.js"></script>
+	<script type="text/javascript" src="js/angular.min.js"></script>
+	<script type="text/javascript" src="js/routerisk.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+    <!-- <script src="js/test.js"></script> -->
+</body>
+</html>

@@ -1,0 +1,135 @@
+/* 
+    Document   : style
+    Created on : Nov 5, 2014, 9:30:18 AM
+    Author     : Siddharth
+    Description:
+        Purpose of the stylesheet follows.
+*/
+/* General settings */
+body {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: small;
+}
+
+.ol-attribution {
+	max-width: calc(100% -3em);
+}
+
+#tags {
+	display: none;
+}
+
+/* The map and the location bar */
+#map {
+	clear: both;
+	position: relative;
+	width: auto;
+}
+
+.map-wrapper {
+	padding: 0px;
+}
+
+#wrapper {
+	width: auto;
+}
+
+#location {
+	float: right;
+}
+
+.ol-popup {
+	display: none;
+	position: absolute;
+	background-color: white;
+	-moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+	-webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+	filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+	padding: 15px;
+	border-radius: 10px;
+	border: 1px solid #cccccc;
+	bottom: 12px;
+	left: -50px;
+}
+
+.ol-popup:after, .ol-popup:before {
+	top: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.ol-popup:after {
+	border-top-color: white;
+	border-width: 10px;
+	left: 48px;
+	margin-left: -10px;
+}
+
+.ol-popup:before {
+	border-top-color: #cccccc;
+	border-width: 11px;
+	left: 48px;
+	margin-left: -11px;
+}
+
+.ol-popup-closer {
+	text-decoration: none;
+	position: absolute;
+	top: 2px;
+	right: 8px;
+}
+
+.ol-popup-closer:after {
+	content: "x";
+}
+
+.controls {
+	border: 1px solid transparent;
+	border-radius: 2px 0 0 2px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	height: 32px;
+	outline: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.address-input {
+	background-color: #fff;
+	padding: 0 11px 0 13px;
+	width:100%;
+	font-family: Roboto;
+	font-size: 15px;
+	font-weight: 300;
+	text-overflow: ellipsis;
+}
+
+.address-input:focus {
+	border-color: #4d90fe;
+	margin-left: -1px;
+	padding-left: 14px; /* Regular padding-left + 1. */
+	width: 100%;
+}
+
+.pac-container {
+	font-family: Roboto;
+}
+.animate-show {
+  line-height: 20px;
+  opacity: 1;
+
+}
+
+.animate-show.ng-hide-add.ng-hide-add-active,
+.animate-show.ng-hide-remove.ng-hide-remove-active {
+  -webkit-transition: all linear 0.5s;
+  transition: all linear 0.5s;
+}
+
+.animate-show.ng-hide {
+  line-height: 0;
+  opacity: 0;
+}
