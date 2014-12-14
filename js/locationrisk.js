@@ -26,7 +26,7 @@
             		title:"Railway Tracks",
               	  	source: new ol.source.ImageWMS({
                     	  url: baseurl,
-                    	  params: {'LAYERS': 'railroad:tracksold'},
+                    	  params: {'LAYERS': 'railroad:tracks'},
                     	  serverType: 'geoserver'
                     	})
               	});

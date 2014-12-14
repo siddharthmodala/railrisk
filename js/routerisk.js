@@ -15,7 +15,7 @@
                           {displayName:'Destination',id:'destination',visible:true}];
         var scope = $scope;
         var http = $http;
-        var baseurl = "http://localhost:8080/geoserver/railroad/wms";
+        var baseurl = "/geoserver/railroad/wms";
         var nodes = [];
         var extent =[-116.08019063893,22.89094998168,-66.271658797184,52.27135336056];
       
@@ -147,7 +147,7 @@
             		    map.addLayer(result);	
         		    
         		    
-        		    var featureurl = "http://localhost:8080/geoserver/railroad/ows?service=WFS&version=1.3.0&request=GetFeature" +
+        		    var featureurl = "/geoserver/railroad/ows?service=WFS&version=1.3.0&request=GetFeature" +
         		    				 "&typeName=railroad:pgroute&outputFormat=application/json&viewparams="+viewparams.join(';');
         		    http.get(featureurl).success(function(data){
         		    	
@@ -209,7 +209,7 @@
     		        		      'x2:' + dest.getPlace().geometry.location.D, 'y2:' + dest.getPlace().geometry.location.k
     		        		    ];
     		        		               		        		    
-    		        		    var featureurl = "http://localhost:8080/geoserver/railroad/ows?service=WFS&version=1.3.0&request=GetFeature" +
+    		        		    var featureurl = "/geoserver/railroad/ows?service=WFS&version=1.3.0&request=GetFeature" +
     		        		    				 "&typeName=railroad:pgroute&outputFormat=application/json&viewparams="+viewparams.join(';');
     		        		    http.get(featureurl).success(function(data){
     		        		    	
