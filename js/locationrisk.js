@@ -11,7 +11,7 @@
             $scope.segmentLength = 0;
             var scope = $scope;
             var http = $http;
-            var baseurl = "http://localhost:8080/geoserver/railroad/wms";
+            var baseurl = "/geoserver/railroad/wms";
             ol.Extent =[-116.08019063893,22.89094998168,-66.271658797184,52.27135336056];
           
            	var statebg = new ol.layer.Image({
