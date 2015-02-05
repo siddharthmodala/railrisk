@@ -3,7 +3,7 @@
 
     app.controller("LocationRiskController", ['$scope', '$http', function($scope, $http) {
 
-            $scope.tankCarDesigns = [{name: 'Car Desing 1', value: 0.3}, {name: 'Car Design 2', value: 0.5}, {name: 'Car Design 3', value: 0.5}];
+            $scope.tankCarDesigns = [{name: 'Car Design 1', value: 0.3}, {name: 'Car Design 2', value: 0.5}, {name: 'Car Design 3', value: 0.5}];
             $scope.noOfCars = 200;
             $scope.tankCarDesign = $scope.tankCarDesigns[0];
             $scope.trainSpeed = 45;
@@ -11,17 +11,50 @@
             $scope.segmentLength = 0;
             var scope = $scope;
             var http = $http;
+            var nodes = [];
             var baseurl = "/geoserver/railroad/wms";
             ol.Extent =[-116.08019063893,22.89094998168,-66.271658797184,52.27135336056];
           
-           	var statebg = new ol.layer.Image({
-            		title:"Country Background",
-            	  source: new ol.source.ImageWMS({
-                  	  url: baseurl,
-                	  params: {'LAYERS': 'railroad:statebg'},
-                	  serverType: 'geoserver'
-                	})
-            	});
+//           	var statebg = new ol.layer.Image({
+//            		title:"Country Background",
+//            	  source: new ol.source.ImageWMS({
+//                  	  url: baseurl,
+//                	  params: {'LAYERS': 'railroad:statebg'},
+//                	  serverType: 'geoserver'
+//                	})
+//            	});
+            var tempFunc = {}
+        	tempFunc.getRenderFromQueryString = function() {
+        		  var obj = {}, queryString = location.search.slice(1),
+        	      re = /([^&=]+)=([^&]*)/g, m;
+
+        	  while (m = re.exec(queryString)) {
+        	    obj[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+        	  }
+        	  if ('renderers' in obj) {
+        	    return obj['renderers'].split(',');
+        	  } else if ('renderer' in obj) {
+        	    return [obj['renderer']];
+        	  } else {
+        	    return undefined;
+        	  }
+        	}
+                       
+           	var attribution = new ol.Attribution({
+          	  html: 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/' +
+          	      'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
+          	});
+
+
+          var statebg = new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                  attributions: [attribution],
+                  url: 'http://server.arcgisonline.com/ArcGIS/rest/services/' +
+                      'World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
+                })
+              });
+          
+          
             	var tracks = new ol.layer.Image({
             		title:"Railway Tracks",
               	  	source: new ol.source.ImageWMS({
@@ -32,32 +65,19 @@
               	});
 
             	var view = new ol.View({
-            		center: [-97, 38],
-            	  projection: "EPSG:4326",
-                  maxResolution: 0.3561261015634373,
-            	  zoom:4
+            		//center: [-97, 38],
+            		center: [-11132436.5045,4866153.7734],
+//            		projection: "EPSG:4326",
+//                  maxResolution: 0.3561261015634373,
+            	  zoom:5,
+            	  minZoom:3,
+            	  maxZoom:14
             	});
 
             	var overlay = new ol.Overlay({
           		  element: document.getElementById('popup')
           		});
             	
-            	var tempFunc = {}
-            	tempFunc.getRenderFromQueryString = function() {
-            		  var obj = {}, queryString = location.search.slice(1),
-            	      re = /([^&=]+)=([^&]*)/g, m;
-
-            	  while (m = re.exec(queryString)) {
-            	    obj[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-            	  }
-            	  if ('renderers' in obj) {
-            	    return obj['renderers'].split(',');
-            	  } else if ('renderer' in obj) {
-            	    return [obj['renderer']];
-            	  } else {
-            	    return undefined;
-            	  }
-            	}
             	
             	var vectorSource = new ol.source.Vector({
             		features: []
@@ -76,8 +96,25 @@
             		    })
             	});
             	
+            	// The vector layer used to display the search pin .
+            	var iconStyle = new ol.style.Style({
+          		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+          			    anchor: [0.5, 46],
+          			    anchorXUnits: 'fraction',
+          			    anchorYUnits: 'pixels',
+          			    opacity: 0.75,
+          			    src: 'js/img/pin.png'
+          			  }))
+          			}); 
+            	var searchSrc = new ol.source.Vector({
+            	    features: []
+            	  })
+            	var searchLayer = new ol.layer.Vector({
+            	  source: searchSrc
+            	});
+            	
             	var map = new ol.Map({
-            	  layers: [statebg,tracks,vectorLayer],
+            	  layers: [statebg,tracks,vectorLayer,searchLayer],
             	  target: 'map',
             	  renderer:tempFunc.getRenderFromQueryString(),
             	  overlays:[overlay],
@@ -91,7 +128,7 @@
             		  
             		  var viewResolution = /** @type {number} */ (view.getResolution());
             		  var url = tracks.getSource().getGetFeatureInfoUrl(
-            		      evt.coordinate, viewResolution, 'EPSG:4326',
+            		      evt.coordinate, viewResolution, 'EPSG:3857',
             		      {'INFO_FORMAT': 'application/json'});
             		  
             		  http.get(url).success(function(data){
@@ -109,7 +146,9 @@
             	        		overlay.setPosition(coordinate);
             	        		container.style.display =  'block';
             	        		//for(var index=0; index< data.features[0].geometry.coordinates[0].length;index++)
-            	        			vectorSource.addFeatures(new ol.format.GeoJSON().readFeatures(data.features[0]));
+            	        		var vectorfeatures = new ol.format.GeoJSON().readFeatures(data.features[0],{'featureProjection':'EPSG:3857'});
+            	        			vectorSource.clear();
+            	        			vectorSource.addFeatures(vectorfeatures);
             	        	}
             		  }).error(function(){
             			  alert('error');
@@ -120,9 +159,67 @@
             		container.style.display = 'none';
             		closebutton.blur();
             		vectorSource.clear();
+            		searchSrc.clear();
             	  return false;
             	};
             	
+            	var initSearch = function initialize(elementName)
+                {
+
+                var defaultBounds = new google.maps.LatLngBounds(
+                		  new google.maps.LatLng(-125.332,49.095),
+                		  new google.maps.LatLng(-66.753,25.721));
+                  
+                  var options = {
+                		  bounds: defaultBounds,
+                		  componentRestrictions: {country: 'us'}
+                		};
+
+                  var input = /** @type {HTMLInputElement} */(
+                      document.getElementById(elementName));
+               
+                  var autocomplete = new google.maps.places.Autocomplete(input,options);
+                  
+                 google.maps.event.addListener(autocomplete, 'place_changed', function() {
+                    var place = autocomplete.getPlace();
+                    if (!place.geometry) {
+                      return;
+                    }
+
+                    // If the place has a geometry, then present it on a map.
+                    /*if (place.geometry.viewport) {
+                    	
+                    } else {*/
+                      //map.setCenter(place.geometry.location);
+                      //map.setZoom(17);  // Why 17? Because it looks good.
+                    	searchSrc.clear();
+                    	var newStation = new ol.Feature();
+                    	newStation.setStyle(iconStyle);
+                    	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857')));
+                    	searchSrc.addFeature(newStation);
+                   		view.setCenter(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857'));
+                   		view.setZoom(12);
+
+                   /* }*/
+                    /*var address = '';
+                    if (place.address_components) {
+                      address = [
+                        (place.address_components[0] && place.address_components[0].short_name || ''),
+                        (place.address_components[1] && place.address_components[1].short_name || ''),
+                        (place.address_components[2] && place.address_components[2].short_name || '')
+                      ].join(' ');
+                    }*/
+
+                    //infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+                    //infowindow.open(map, marker);
+                  });
+                  return autocomplete;
+                } // End of InitSearch
+
+                angular.element(document).ready(function(){
+                    	nodes.push(initSearch("searchloc"));	
+                    
+                });
             	
 
         }]);

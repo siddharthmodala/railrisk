@@ -3,7 +3,7 @@
 
     app.controller("RouteRiskController", ['$scope', '$http', function($scope, $http) {
 
-    	$scope.tankCarDesigns = [{name: 'Car Desing 1', value: 0.3}, {name: 'Car Design 2', value: 0.5}, {name: 'Car Design 3', value: 0.5}];
+    	$scope.tankCarDesigns = [{name: 'Car Design 1', value: 0.3}, {name: 'Car Design 2', value: 0.5}, {name: 'Car Design 3', value: 0.5}];
         $scope.noOfCars = 200;
         $scope.tankCarDesign = $scope.tankCarDesigns[0];
         $scope.trainSpeed = 45;
@@ -12,6 +12,7 @@
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true},
                           {displayName:'On Route Station 1',id:'onRoute1',visible:false},
                           {displayName:'On Route Station 2',id:'onRoute2',visible:false},
+                          {displayName:'On Route Station 3',id:'onRoute3',visible:false},
                           {displayName:'Destination',id:'destination',visible:true}];
         var scope = $scope;
         var http = $http;
@@ -19,14 +20,28 @@
         var nodes = [];
         var extent =[-116.08019063893,22.89094998168,-66.271658797184,52.27135336056];
       
-       	var statebg = new ol.layer.Image({
-        		title:"Country Background",
-        	  source: new ol.source.ImageWMS({
-              	  url: baseurl,
-            	  params: {'LAYERS': 'railroad:statebg'},
-            	  serverType: 'geoserver'
-            	})
+//       	var statebg = new ol.layer.Image({
+//        		title:"Country Background",
+//        	  source: new ol.source.ImageWMS({
+//              	  url: baseurl,
+//            	  params: {'LAYERS': 'railroad:statebg'},
+//            	  serverType: 'geoserver'
+//            	})
+//        	});
+       	
+     	var attribution = new ol.Attribution({
+        	  html: 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/' +
+        	      'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
         	});
+
+
+        var statebg = new ol.layer.Tile({
+              source: new ol.source.XYZ({
+                attributions: [attribution],
+                url: 'http://server.arcgisonline.com/ArcGIS/rest/services/' +
+                    'World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
+              })
+            });
        	
         	var tracks = new ol.layer.Image({
         		title:"Railway Tracks",
@@ -41,11 +56,21 @@
         		  element: document.getElementById('popup')
         		});
 
+//        	var view = new ol.View({
+//        		center: [-97, 38],
+//        		projection: "EPSG:4326",
+//        		maxResolution: 0.3561261015634373,
+//        		zoom:4
+//        	});
+        	
         	var view = new ol.View({
-        		center: [-97, 38],
-        		projection: "EPSG:4326",
-        		maxResolution: 0.3561261015634373,
-        		zoom:4
+        		//center: [-97, 38],
+        		center: [-11132436.5045,4866153.7734],
+//        		projection: "EPSG:4326",
+//              maxResolution: 0.3561261015634373,
+        	  zoom:5,
+        	  minZoom:3,
+        	  maxZoom:14
         	});
         	
         	var overlay = new ol.Overlay({
@@ -106,7 +131,7 @@
         			    anchorXUnits: 'fraction',
         			    anchorYUnits: 'pixels',
         			    opacity: 0.75,
-        			    src: 'js/img/marker.png'
+        			    src: 'js/img/pin.png'
         			  }))
         			}); 
 
@@ -193,7 +218,7 @@
         				document.getElementById(scope.nodeNames[index].id).value = '';
         			}
         		document.getElementById(scope.nodeNames[0].id).value = '';
-        		document.getElementById(scope.nodeNames[3].id).value = '';
+        		document.getElementById(scope.nodeNames[4].id).value = '';
         		scope.$apply();
         		return false;
         	}
@@ -201,6 +226,20 @@
         	closebutton.onclick = closePopUP;
         	
             $scope.clearRoute = closePopUP;
+            
+            $scope.calculateRisk = function(){
+            	
+            	if($scope.validateCalc())
+            		{
+            			var lastVisible = nodes[0];
+            			for(var index =1; index < $scope.nodeNames.length;index++){
+            				if($scope.nodeNames[index].visible){
+            						$scope.calculateSubRisk(lastVisible,nodes[index])
+            						lastVisible = nodes[index];
+            					}
+            			}
+            		}
+           }
             
             $scope.calculateSubRisk = function(src,dest)
             {
@@ -230,10 +269,10 @@
     		            	                document.getElementById('routeLength').innerHTML =parseFloat(scope.routeLength).toFixed(2) +' Miles';
     		            	                container.style.display =  'block';
     		            	                
-    		        		    			popup.setPosition([src.getPlace().geometry.location.D,src.getPlace().geometry.location.k]);
+    		        		    			popup.setPosition(ol.proj.transform([src.getPlace().geometry.location.D,src.getPlace().geometry.location.k],'EPSG:4326','EPSG:3857'));
     		        		    			data.totalFeatures = data.features.length;
     		        		    			
-    		        		    			routeSource.addFeatures(new ol.format.GeoJSON().readFeatures(data));
+    		        		    			routeSource.addFeatures(new ol.format.GeoJSON().readFeatures(data,{'featureProjection':'EPSG:3857'}));
     		        		    			
     		        		    		}
     		        		    }).error(function(data){
@@ -242,19 +281,7 @@
             	
             }
             
-            $scope.calculateRisk = function(){
-            	
-            	if($scope.validateCalc())
-            		{
-            			var lastVisible = nodes[0];
-            			for(var index =1; index < $scope.nodeNames.length;index++){
-            				if($scope.nodeNames[index].visible){
-            						$scope.calculateSubRisk(lastVisible,nodes[index])
-            						lastVisible = nodes[index];
-            					}
-            			}
-            		}       
-           }
+            
             	$scope.validateCalc = function(){
             	
             	for(var index =0; index < $scope.nodeNames.length;index++){
@@ -273,14 +300,29 @@
             	
             }
             $scope.addStation = function(){
-            	if(!$scope.nodeNames[1].visible)
+            	for(index in $scope.nodeNames)
             		{
-            			$scope.nodeNames[1].visible=true;
+            		if(!$scope.nodeNames[index].visible)
+            			{
+            			$scope.nodeNames[index].visible=true;
+            				return;
+            			}
             		}
-            	else
-            		{
-            			alert('Only one on route station is allowed');
-            		}
+        			alert('Only three on route stations are allowed.');
+            }
+            
+            $scope.clearStations = function()
+            {
+        		for(var index =1;index<scope.nodeNames.length-1;index++)
+    			{
+    				
+    				$scope.nodeNames[index].visible=false;
+    				document.getElementById($scope.nodeNames[index].id).value = '';
+    			}
+        		document.getElementById(scope.nodeNames[0].id).value = '';
+        		document.getElementById(scope.nodeNames[4].id).value = '';
+        		vectorSrc.clear();
+        		$scope.$apply();
             }
          
             var initSearch = function initialize(elementName)
@@ -315,12 +357,12 @@
                 	
                 	var newStation = new ol.Feature();
                 	newStation.setStyle(iconStyle);
-                	newStation.setGeometry(new ol.geom.Point([place.geometry.location.D,place.geometry.location.k]));
+                	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857')));
                 	vectorSrc.addFeature(newStation);
                 	if(vectorSrc.getFeatures().length > 1)
                 		view.fitExtent(vectorLayer.getSource().getExtent(),map.getSize());
                 	else
-                		{view.setCenter([place.geometry.location.D,place.geometry.location.k]);
+                		{view.setCenter(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857'));
                 		view.setZoom(7);}
                /* }*/
                 /*var address = '';
