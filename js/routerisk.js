@@ -43,9 +43,9 @@
               })
             });
        	
-        	var tracks = new ol.layer.Image({
+        	var tracks = new ol.layer.Tile({
         		title:"Railway Tracks",
-          	  	source: new ol.source.ImageWMS({
+          	  	source: new ol.source.TileWMS({
                 	  url: baseurl,
                 	  params: {'LAYERS': 'railroad:tracks'},
                 	  serverType: 'geoserver'
