@@ -134,7 +134,7 @@
             		  http.get(url).success(function(data){
             	        if(data.features.length >0)
             	        	{
-            	        	    var L = parseFloat(data.features[0].properties.MILES);
+            	        	    var L = parseFloat(data.features[0].properties.miles);
             	                scope.segmentLength = L;
             	                var D = 0.1 * scope.noOfCars * scope.trainSpeed / 30;
             	                var P = scope.tankCarDesign.value * scope.trainSpeed / 30;

@@ -1,6 +1,6 @@
 ﻿
-DROP FUNCTION pgr_fromAtoB_Mainlines(varchar, double precision, double precision, 
-                          double precision, double precision);
+--DROP FUNCTION pgr_fromAtoB_Mainlines(varchar, double precision, double precision, 
+--                          double precision, double precision);
 
 CREATE OR REPLACE FUNCTION pgr_fromAtoB_Mainlines(
                 IN tbl varchar,
