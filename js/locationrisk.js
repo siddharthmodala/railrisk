@@ -59,7 +59,7 @@
             		title:"Railway Tracks",
               	  	source: new ol.source.TileWMS({
                     	  url: baseurl,
-                    	  params: {'LAYERS': 'railroad:tracks'},
+                    	  params: {'LAYERS': 'railroad:tracks_main'},
                     	  serverType: 'geoserver'
                     	})
               	});

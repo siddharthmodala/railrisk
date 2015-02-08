@@ -47,7 +47,7 @@
         		title:"Railway Tracks",
           	  	source: new ol.source.TileWMS({
                 	  url: baseurl,
-                	  params: {'LAYERS': 'railroad:tracks'},
+                	  params: {'LAYERS': 'railroad:tracks_main'},
                 	  serverType: 'geoserver'
                 	})
           	});
@@ -249,7 +249,7 @@
     		        		    ];
     		        		               		        		    
     		        		    var featureurl = "/geoserver/railroad/ows?service=WFS&version=1.3.0&request=GetFeature" +
-    		        		    				 "&typeName=railroad:pgroute&outputFormat=application/json&viewparams="+viewparams.join(';');
+    		        		    				 "&typeName=railroad:pgroute_main&outputFormat=application/json&viewparams="+viewparams.join(';');
     		        		    http.get(featureurl).success(function(data){
     		        		    	
     		        		    	if(data!=null)
