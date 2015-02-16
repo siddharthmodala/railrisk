@@ -3,7 +3,11 @@
 
     app.controller("LocationRiskController", ['$scope', '$http', function($scope, $http) {
 
-            $scope.tankCarDesigns = [{name: 'Car Design 1', value: 0.3}, {name: 'Car Design 2', value: 0.5}, {name: 'Car Design 3', value: 0.5}];
+            $scope.tankCarDesigns = [{name: 'Legacy DOT 111 (7/16 inch, no jacket)', value: 0.196},
+                                     {name: 'Legacy DOT 111 (7/16 inch, jacket)', value: 0.085},
+                                     {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103},
+                                     {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046},
+                                     {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037}];
             $scope.noOfCars = 200;
             $scope.tankCarDesign = $scope.tankCarDesigns[0];
             $scope.trainSpeed = 45;
@@ -147,10 +151,11 @@
             	        	{
             	        	    var L = parseFloat(data.features[0].properties.miles);
             	                scope.segmentLength = L;
-            	                var D = 0.1 * scope.noOfCars * scope.trainSpeed / 30;
-            	                var P = scope.tankCarDesign.value * scope.trainSpeed / 30;
-            	                var Z = 0.000001;
-            	                scope.risk = Z * L * (1 - Math.pow((1 - P), D));
+            	                var C = parseFloat(data.features[0].properties.consequence);
+            	                var D = 0.1 * scope.noOfCars * scope.trainSpeed / 26;
+            	                var P = scope.tankCarDesign.value * scope.trainSpeed / 26;
+            	                var Z = parseFloat(data.features[0].properties.derailmentrate);
+            	                scope.risk = Z * L * (1 - Math.pow((1 - P), D))*C;
             	                scope.releaseInterval = scope.risk * scope.annualTrainUnits;
 
             	                //new popup code

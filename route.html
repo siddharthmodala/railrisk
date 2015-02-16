@@ -27,14 +27,14 @@
 				</button>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li><a href="index.html">Location Risk</a></li>
-						<li><a href="#">Route Risk</a></li>
+						<li><a href="index.html" style="font-size: 18px;">Location Risk</a></li>
+						<li><a href="#" style="font-size: 18px;">Route Risk</a></li>
 						<!--<li><a href="#">Risk Communication</a></li>-->
-						<li><a href="#">Help</a></li>
+						<li><a href="#" style="font-size: 18px;">Help</a></li>
 					</ul>
-					<a class="navbar-brand" style="padding: 0px; padding-left: 25%;"><img
+					<a class="navbar-brand" style="padding: 0px; padding-left: 12%; font-size: 26px;"><img
 						src="js/img/Rutgers25.png"
-						style="display: inline-block; width: inherit; height: inherit; padding: 0px"
+						style="display: inline-block; width: inherit; height: inherit; padding: 0px;"
 						alt="">Risk Analysis of Crude Oil by Rail</a>
 				</div>
 			</div>
@@ -48,7 +48,7 @@
 			<div class="col-sm-4 col-md-3 sidebar transition" id="formdiv">
 				<form name="test" action="#" class="form-horizontal">
 					<fieldset class="scheduler-border">
-						<legend class="scheduler-border"><h4>Route Search</h4></legend>
+						<legend class="scheduler-border"><h4>Route</h4></legend>
 						<div class="form-group" ng-repeat="node in nodeNames"
 							ng-show="node.visible">
 							<label for="{{node.displayName}}" class="col-sm-4">{{node.displayName}}</label>
@@ -60,7 +60,7 @@
 						</div>
 					</fieldset>
 					<button type="button" class="btn btn-success"
-						ng-click="addStation()">Add on route station</button>
+						ng-click="addStation()">Add En-route station</button>
 					<button type="button" class="btn btn-primary"
 						ng-click="clearStations()">Clear</button>
 					<!-- <div class="form-group">
@@ -70,8 +70,8 @@
 						</div>
 					</div> -->
 
-					<fieldset class="scheduler-border" style="margin-top:10px !important">
-						<legend class="scheduler-border"><h4>Train configuration</h4></legend>
+					<fieldset class="scheduler-border" style="margin-top:20px !important">
+						<legend class="scheduler-border"><h4>Train</h4></legend>
 						<div class="form-group">
 							<label for="annualTrainUnits" class="col-sm-6">Annual
 								number of crude oil unit trains</label>
@@ -111,7 +111,7 @@
 						</div>
 					</fieldset>
 					<button type="button" class="btn btn-success"
-						ng-click="calculateRisk()">Calculate Risk</button>
+						ng-click="calculateRisk()">Calculate Total Risk</button>
 					<button type="button" class="btn btn-primary"
 						ng-click="clearRoute()">Clear All</button>
 				</form>
@@ -147,7 +147,7 @@
 								<td style="width: 65px;"><b><span id="riskcontent"></span></b></td>
 							</tr>
 							<tr>
-								<td><b>Interval (year) between release incidents</b></td>
+								<td><b>Interval (years) between release incidents</b></td>
 								<td style="width: 65px;"><b><span id="intervalcontent"></span></b></td>
 							</tr>
 							<tr>

@@ -3,7 +3,11 @@
 
     app.controller("RouteRiskController", ['$scope', '$http', function($scope, $http) {
 
-    	$scope.tankCarDesigns = [{name: 'Car Design 1', value: 0.3}, {name: 'Car Design 2', value: 0.5}, {name: 'Car Design 3', value: 0.5}];
+        $scope.tankCarDesigns = [{name: 'Legacy DOT 111 (7/16 inch, no jacket)', value: 0.196},
+                                 {name: 'Legacy DOT 111 (7/16 inch, jacket)', value: 0.085},
+                                 {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103},
+                                 {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046},
+                                 {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037}];
         $scope.noOfCars = 200;
         $scope.tankCarDesign = $scope.tankCarDesigns[0];
         $scope.trainSpeed = 45;
@@ -13,9 +17,11 @@
         $scope.routeLength = 0;
         $scope.routeData = null;
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true},
-                          {displayName:'On Route Station 1',id:'onRoute1',visible:false},
-                          {displayName:'On Route Station 2',id:'onRoute2',visible:false},
-                          {displayName:'On Route Station 3',id:'onRoute3',visible:false},
+                          {displayName:'En-route Station 1',id:'onRoute1',visible:false},
+                          {displayName:'En-route Station 2',id:'onRoute2',visible:false},
+                          {displayName:'En-route Station 3',id:'onRoute3',visible:false},
+                          {displayName:'En-route Station 4',id:'onRoute4',visible:false},
+                          {displayName:'En-route Station 5',id:'onRoute5',visible:false},
                           {displayName:'Destination',id:'destination',visible:true}];
         var scope = $scope;
         var http = $http;
@@ -214,8 +220,8 @@
     		        		    				 	 L = parseFloat(data.features[i].properties.miles);
     		        		    				 	 Z = parseFloat(data.features[i].properties.derailmentrate);
     		        		    				 	 C = parseFloat(data.features[i].properties.consequence);
-    		        		    				 	 P = scope.tankCarDesign.value * scope.trainSpeed / 30; // 30 is the avg train speed on any line
-    		        		    				 	 D = 0.1 * scope.noOfCars * scope.trainSpeed / 30;
+    		        		    				 	 P = scope.tankCarDesign.value * scope.trainSpeed / 26; // 26 is the avg train speed on any line
+    		        		    				 	 D = 0.1 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
     		        		    				 	 segmentrisk = Z * L * (1 - Math.pow((1 - P), D)) * C;
     		        		    				 	 data.features[i].properties.segmentrisk = segmentrisk;
     		        		    				 	scope.risk += segmentrisk;
@@ -301,7 +307,7 @@
             				return;
             			}
             		}
-        			alert('Only three on route stations are allowed.');
+        			alert('Only five on route stations are allowed.');
             }
             
             $scope.clearStations = function()
