@@ -7,7 +7,9 @@
             $scope.noOfCars = 200;
             $scope.tankCarDesign = $scope.tankCarDesigns[0];
             $scope.trainSpeed = 45;
+            $scope.annualTrainUnits = 20;
             $scope.risk = 0;
+            $scope.releaseInterval =0 
             $scope.segmentLength = 0;
             var scope = $scope;
             var http = $http;
@@ -58,6 +60,11 @@
             	var tracks = new ol.layer.Tile({
             		title:"Railway Tracks",
               	  	source: new ol.source.TileWMS({
+              	  		attributions:[
+              	  		              new ol.Attribution({
+              	  		            	  html:'</br><p style="font-size:13px">Track legend</p><img style ="max-height:15em"src="/geoserver/railroad/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=railroad%3Atracks_main"/> '
+              	  		              })
+              	  		              ],
                     	  url: baseurl,
                     	  params: {'LAYERS': 'railroad:tracks_main'},
                     	  serverType: 'geoserver'
@@ -78,6 +85,7 @@
           		  element: document.getElementById('popup')
           		});
             	
+            	var tempcontrol = new ol.control.Control({element:document.getElementById('sidemenu')});
             	
             	var vectorSource = new ol.source.Vector({
             		features: []
@@ -90,7 +98,7 @@
             		        color: 'rgba(255, 255, 255, 0.2)'
             		      }),
             		      stroke: new ol.style.Stroke({
-            		        color: '#FF0000',
+            		        color: '#FFFF00',
             		        width: 4
             		      })
             		    })
@@ -121,6 +129,9 @@
             	  view: view
             	});
             	
+            	
+            	map.addControl(new ol.control.ScaleLine());
+            	map.addControl(new ol.control.ZoomSlider());
             	var container  = document.getElementById('popup');
             	var closebutton = document.getElementById('popup-closer');
             	map.on('click', function(evt) {
@@ -140,10 +151,24 @@
             	                var P = scope.tankCarDesign.value * scope.trainSpeed / 30;
             	                var Z = 0.000001;
             	                scope.risk = Z * L * (1 - Math.pow((1 - P), D));
-            	                //scope.risk = parseFloat(scope.risk).toFixed(8)
+            	                scope.releaseInterval = scope.risk * scope.annualTrainUnits;
+
+            	                //new popup code
+//            	                overlay.setPosition(coordinate);
+//            	                var element = overlay.getElement();
+//            	                $(element).popover({
+//            	                	'placement': 'top',
+//            	                    'animation': true,
+//            	                    'html': true,
+//            	                    'content': '<p>Risk:</p><code>' + parseFloat(scope.risk).toExponential(2) + '</code>'
+//            	                });
+//            	                $(element).popover('show');
+            	                //old popup code
+            	                overlay.setPosition(coordinate);
             	                document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
-            	                document.getElementById('segmentlength').innerHTML =parseFloat(scope.segmentLength).toFixed(2) +' Miles';
-            	        		overlay.setPosition(coordinate);
+            	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toExponential(2);
+            	                document.getElementById('segmentlength').innerHTML =parseFloat(scope.segmentLength).toFixed(1);
+            	        		
             	        		container.style.display =  'block';
             	        		//for(var index=0; index< data.features[0].geometry.coordinates[0].length;index++)
             	        		var vectorfeatures = new ol.format.GeoJSON().readFeatures(data.features[0],{'featureProjection':'EPSG:3857'});
@@ -162,6 +187,28 @@
             		searchSrc.clear();
             	  return false;
             	};
+            	
+            	var formstate = true;
+            	
+            	$scope.toggleDiv = function()
+            	{
+        			var formdiv = $('#formdiv');
+        			var mapdiv = $('#mapdiv');
+            		if(formstate)
+            		{	formdiv.removeClass();
+            			mapdiv.removeClass().addClass('col-sm-12 col-md-12 map-wrapper')
+            			formdiv.hide();
+            			formstate = false;
+            		}
+            		else{
+            			formdiv.addClass("col-sm-4 col-md-3 sidebar");
+            			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 map-wrapper');
+            			formdiv.show();
+            			formstate = true;
+            		}
+            		map.updateSize();
+            		
+            	}
             	
             	var initSearch = function initialize(elementName)
                 {

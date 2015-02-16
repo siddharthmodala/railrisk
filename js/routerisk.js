@@ -7,8 +7,11 @@
         $scope.noOfCars = 200;
         $scope.tankCarDesign = $scope.tankCarDesigns[0];
         $scope.trainSpeed = 45;
+        $scope.annualTrainUnits = 20;
         $scope.risk = 0;
+        $scope.releaseInterval =0
         $scope.routeLength = 0;
+        $scope.routeData = null;
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true},
                           {displayName:'On Route Station 1',id:'onRoute1',visible:false},
                           {displayName:'On Route Station 2',id:'onRoute2',visible:false},
@@ -19,16 +22,7 @@
         var baseurl = "/geoserver/railroad/wms";
         var nodes = [];
         var extent =[-116.08019063893,22.89094998168,-66.271658797184,52.27135336056];
-      
-//       	var statebg = new ol.layer.Image({
-//        		title:"Country Background",
-//        	  source: new ol.source.ImageWMS({
-//              	  url: baseurl,
-//            	  params: {'LAYERS': 'railroad:statebg'},
-//            	  serverType: 'geoserver'
-//            	})
-//        	});
-       	
+       	var callCount =0;
      	var attribution = new ol.Attribution({
         	  html: 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/' +
         	      'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
@@ -46,6 +40,12 @@
         	var tracks = new ol.layer.Tile({
         		title:"Railway Tracks",
           	  	source: new ol.source.TileWMS({
+          	  	attributions:[
+      	  		              new ol.Attribution({
+      	  		            	  html:'</br><p style="font-size:13px">Track legend</p>'+
+      	  		            		  '<img style ="max-height:15em"src="/geoserver/railroad/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=railroad%3Atracks_main"/> '
+      	  		              })
+      	  		              ],
                 	  url: baseurl,
                 	  params: {'LAYERS': 'railroad:tracks_main'},
                 	  serverType: 'geoserver'
@@ -55,14 +55,7 @@
         	var popup = new ol.Overlay({
         		  element: document.getElementById('popup')
         		});
-
-//        	var view = new ol.View({
-//        		center: [-97, 38],
-//        		projection: "EPSG:4326",
-//        		maxResolution: 0.3561261015634373,
-//        		zoom:4
-//        	});
-        	
+     	
         	var view = new ol.View({
         		//center: [-97, 38],
         		center: [-11132436.5045,4866153.7734],
@@ -97,6 +90,16 @@
 				feature:[]
 			});
 			
+        	var redStyle = new ol.style.Style({
+    		    fill: new ol.style.Fill({
+    		        color: 'rgba(255, 255, 255, 0.2)'
+    		      }),
+    		      stroke: new ol.style.Stroke({
+    		        color: '#FF0000',
+    		        width: 8
+    		      })
+    		    })
+        	
 			var routeLayer = new ol.layer.Vector({
 				source:routeSource,
 				style:new ol.style.Style({
@@ -104,8 +107,8 @@
         		        color: 'rgba(255, 255, 255, 0.2)'
         		      }),
         		      stroke: new ol.style.Stroke({
-        		        color: '#FF0000',
-        		        width: 4
+        		        color: '#FFFF00',
+        		        width: 8
         		      })
         		    })
 			});
@@ -117,7 +120,9 @@
         	  overlays:[overlay,popup],
         	  view: view
         	});
-        	//view.fitExtent(extent,map.getSize());
+
+        	map.addControl(new ol.control.ScaleLine());
+        	map.addControl(new ol.control.ZoomSlider());
         	var params = {
         			  LAYERS: 'railroad:pgroute',
         			  FORMAT: 'image/png'
@@ -130,7 +135,7 @@
         			    anchor: [0.5, 46],
         			    anchorXUnits: 'fraction',
         			    anchorYUnits: 'pixels',
-        			    opacity: 0.75,
+        			    opacity: 0.99,
         			    src: 'js/img/pin.png'
         			  }))
         			}); 
@@ -146,62 +151,6 @@
         	var result;
         	var container  = document.getElementById('popup');
         	var closebutton = document.getElementById('popup-closer');
-        	/*map.on('click', function(event) {
-        		  if (originPoint.getGeometry() == null) {
-        		    // First click.
-        		    originPoint.setGeometry(new ol.geom.Point(event.coordinate));
-        		  } else if (destPoint.getGeometry() == null) {
-        		    // Second click.
-        		    destPoint.setGeometry(new ol.geom.Point(event.coordinate));
-        		    // Transform the coordinates from the map projection (EPSG:3857)
-        		    // to the server projection (EPSG:4326).
-        		    var startCoord = originPoint.getGeometry().getCoordinates();
-        		    var destCoord = destPoint.getGeometry().getCoordinates();
-        		    var viewparams = [
-        		      'x1:' + startCoord[0], 'y1:' + startCoord[1],
-        		      'x2:' + destCoord[0], 'y2:' + destCoord[1]
-        		    ];
-        		    
-        		    params.viewparams = viewparams.join(';');
-        		    result = new ol.layer.Image({
-            		      source: new ol.source.ImageWMS({
-            		        url: baseurl,
-            		        params: params
-            		      })
-            		    });
-            		    map.addLayer(result);	
-        		    
-        		    
-        		    var featureurl = "/geoserver/railroad/ows?service=WFS&version=1.3.0&request=GetFeature" +
-        		    				 "&typeName=railroad:pgroute&outputFormat=application/json&viewparams="+viewparams.join(';');
-        		    http.get(featureurl).success(function(data){
-        		    	
-        		    	if(data!=null)
-        		    		{
-        		    			for(var i =0; i< data.features.length;i++)
-        		    				{
-        		    				 	var L = parseFloat(data.features[i].properties.cost);
-        		    				 	scope.routeLength += L;
-        		    				 	var D = 0.1 * scope.noOfCars * scope.trainSpeed / 30;
-        		    				 	var P = scope.tankCarDesign.value * scope.trainSpeed / 30;
-        		    				 	var Z = 0.000001;       		    				
-        		    				}
-        		    			
-        		    			scope.risk = Z * L * (1 - Math.pow((1 - P), D));
-        		    			
-        		    			
-            	                document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential();
-            	                document.getElementById('routeLength').innerHTML =parseFloat(scope.routeLength).toFixed(2) +' Miles';
-            	                container.style.display =  'block';
-        		    			popup.setPosition(originPoint.getGeometry().getCoordinates());
-        		    			
-        		    		}
-        		    }).error(function(data){
-        		    	alert('Error calculating route risk');
-        		    });  		    
-        		    
-        		  }
-        		});*/
 
         	var closePopUP = function(){
         	  	container.style.display = 'none';
@@ -211,6 +160,9 @@
         		//scope.clearRoute();
         		scope.routeLength = 0;
         		scope.risk =0;
+        		scope.releaseInterval =0;
+        		 $scope.routeData =null;
+        		 tracks.setOpacity(0.99);
         		for(var index =1;index<scope.nodeNames.length-1;index++)
         			{
         				
@@ -234,14 +186,16 @@
             			var lastVisible = nodes[0];
             			for(var index =1; index < $scope.nodeNames.length;index++){
             				if($scope.nodeNames[index].visible){
-            						$scope.calculateSubRisk(lastVisible,nodes[index])
+            						callCount+=1; // keep a count of the number of ajax call made so far
+           							$scope.calculateSubRisk(lastVisible,nodes[index])
             						lastVisible = nodes[index];
             					}
             			}
+
             		}
            }
             
-            $scope.calculateSubRisk = function(src,dest)
+            $scope.calculateSubRisk = function(src,dest,lastCall)
             {
             	var viewparams = [
     		        		      'x1:' + src.getPlace().geometry.location.D, 'y1:' + src.getPlace().geometry.location.k,
@@ -254,25 +208,64 @@
     		        		    	
     		        		    	if(data!=null)
     		        		    		{
+    		        		    			var L,Z,P,D,C,segmentrisk;
     		        		    			for(var i =0; i< data.features.length;i++)
     		        		    				{
-    		        		    				 	var L = parseFloat(data.features[i].properties.miles);
+    		        		    				 	 L = parseFloat(data.features[i].properties.miles);
+    		        		    				 	 Z = parseFloat(data.features[i].properties.derailmentrate);
+    		        		    				 	 C = parseFloat(data.features[i].properties.consequence);
+    		        		    				 	 P = scope.tankCarDesign.value * scope.trainSpeed / 30; // 30 is the avg train speed on any line
+    		        		    				 	 D = 0.1 * scope.noOfCars * scope.trainSpeed / 30;
+    		        		    				 	 segmentrisk = Z * L * (1 - Math.pow((1 - P), D)) * C;
+    		        		    				 	 data.features[i].properties.segmentrisk = segmentrisk;
+    		        		    				 	scope.risk += segmentrisk;
     		        		    				 	scope.routeLength += L;      		    				
     		        		    				}
-	        		    				 	var D = 0.1 * scope.noOfCars * scope.trainSpeed / 30;
-	        		    				 	var P = scope.tankCarDesign.value * scope.trainSpeed / 30;
-	        		    				 	var Z = 0.000001; 
     		        		    			
-    		        		    			scope.risk += Z * scope.routeLength * (1 - Math.pow((1 - P), D));
     		        		    			
-    		            	                document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
-    		            	                document.getElementById('routeLength').innerHTML =parseFloat(scope.routeLength).toFixed(2) +' Miles';
-    		            	                container.style.display =  'block';
     		            	                
-    		        		    			popup.setPosition(ol.proj.transform([src.getPlace().geometry.location.D,src.getPlace().geometry.location.k],'EPSG:4326','EPSG:3857'));
-    		        		    			data.totalFeatures = data.features.length;
-    		        		    			
-    		        		    			routeSource.addFeatures(new ol.format.GeoJSON().readFeatures(data,{'featureProjection':'EPSG:3857'}));
+    		        		    			if(scope.routeData == null)
+    		        		    			{
+    		        		    				scope.routeData = data;
+    		        		    			}
+    		        		    			else
+    		        		    			{
+    		        		    					scope.routeData.features = scope.routeData.features.concat(data.features);
+		    		        		    			scope.routeData.totalFeatures = scope.routeData.features.length;
+    		        		    			}
+    		        		    			callCount-=1; // counter which maintains the number of ajax calls that were made.
+    		        		    			if(callCount == 0) // when this is the last ajax call 
+    		        		    			{
+    		        		    				scope.releaseInterval = 1/(scope.risk * scope.annualTrainUnits);
+    		        		    				
+	    		                    			document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
+	    		            	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toFixed(2);//.toExponential(2);
+	    		            	                document.getElementById('routeLength').innerHTML =numberWithCommas(parseFloat(scope.routeLength).toFixed(1));
+	    		            	                container.style.display =  'block';
+	    		            	                
+	    		        		    			popup.setPosition(ol.proj.transform([dest.getPlace().geometry.location.D,dest.getPlace().geometry.location.k],'EPSG:4326','EPSG:3857'));
+	    		        		    			//data.totalFeatures = data.features.length;
+	    		        		    			
+	    		        		    			var geoData = new ol.format.GeoJSON().readFeatures(scope.routeData,{'featureProjection':'EPSG:3857'});
+	    		        		    			
+	    		        		    			geoData.sort(function(a,b){
+	    		        		    				return (b.p.segmentrisk - a.p.segmentrisk);
+	    		        		    			});
+	    		        		    			 
+	    		        		    			var subRisk = scope.risk * 0.8;
+	    		        		    			var tempSum = 0;
+	    		        		    			
+	    		        		    			for(var i=0; i<geoData.length; i++)
+	    		        		    				{
+	    		        		    					if(tempSum < subRisk)
+	    		        		    						{
+	    		        		    							tempSum += geoData[i].p.segmentrisk;
+	    		        		    							geoData[i].setStyle(redStyle);
+	    		        		    						}
+	    		        		    				}
+	    		        		    			routeSource.addFeatures(geoData);
+	    		        		    			tracks.setOpacity(0.35);
+    		        		    		}
     		        		    			
     		        		    		}
     		        		    }).error(function(data){
@@ -324,6 +317,34 @@
         		vectorSrc.clear();
         		$scope.$apply();
             }
+            
+            var formstate = true;
+        	
+        	$scope.toggleDiv = function()
+        	{
+    			var formdiv = $('#formdiv');
+    			var mapdiv = $('#mapdiv');
+        		if(formstate)
+        		{	formdiv.removeClass();
+        			mapdiv.removeClass().addClass('col-sm-12 col-md-12 map-wrapper')
+        			formdiv.hide();
+        			formstate = false;
+        		}
+        		else{
+        			formdiv.addClass("col-sm-4 col-md-3 sidebar");
+        			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 map-wrapper');
+        			formdiv.show();
+        			formstate = true;
+        		}
+        		map.updateSize();
+        		
+        	}
+        	
+        	function numberWithCommas(x) {
+        	    var parts = x.toString().split(".");
+        	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        	    return parts.join(".");
+        	}
          
             var initSearch = function initialize(elementName)
             {
@@ -346,15 +367,7 @@
                 var place = autocomplete.getPlace();
                 if (!place.geometry) {
                   return;
-                }
-
-                // If the place has a geometry, then present it on a map.
-                /*if (place.geometry.viewport) {
-                	
-                } else {*/
-                  //map.setCenter(place.geometry.location);
-                  //map.setZoom(17);  // Why 17? Because it looks good.
-                	
+                }           	
                 	var newStation = new ol.Feature();
                 	newStation.setStyle(iconStyle);
                 	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857')));
@@ -364,18 +377,7 @@
                 	else
                 		{view.setCenter(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857'));
                 		view.setZoom(7);}
-               /* }*/
-                /*var address = '';
-                if (place.address_components) {
-                  address = [
-                    (place.address_components[0] && place.address_components[0].short_name || ''),
-                    (place.address_components[1] && place.address_components[1].short_name || ''),
-                    (place.address_components[2] && place.address_components[2].short_name || '')
-                  ].join(' ');
-                }*/
 
-                //infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                //infowindow.open(map, marker);
               });
               return autocomplete;
             } // End of InitSearch

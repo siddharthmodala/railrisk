@@ -1,6 +1,6 @@
 ﻿
 --DROP FUNCTION pgr_fromAtoB_Mainlines(varchar, double precision, double precision, 
---                          double precision, double precision);
+  --                       double precision, double precision);
 
 CREATE OR REPLACE FUNCTION pgr_fromAtoB_Mainlines(
                 IN tbl varchar,
@@ -14,6 +14,8 @@ CREATE OR REPLACE FUNCTION pgr_fromAtoB_Mainlines(
                 OUT heading double precision,
                 OUT cost double precision,
                 OUT miles numeric,
+                OUT consequence numeric,
+                OUT derailmentrate numeric,
                 OUT geom geometry
         )
         RETURNS SETOF record AS
@@ -39,9 +41,9 @@ BEGIN
 
 	-- Shortest path query (TODO: limit extent by BBOX) 
         seq := 0;
-        sql := 'SELECT gid, geom, fraarcid, cost, source, target,miles, 
+        sql := 'SELECT gid, geom, fraarcid, cost, source, target,miles, consequence,derailmentrate,
 				ST_Reverse(geom) AS flip_geom FROM ' ||
-                        'pgr_dijkstra(''SELECT gid as id, source::int, target::int,miles::float, '
+                        'pgr_dijkstra(''SELECT gid as id, source::int, target::int,miles::float,consequence::float,derailmentrate::float, '
                                         || 'st_length(geom)::float AS cost FROM '
                                         || quote_ident(tbl) || ''', '
                                         || source || ', ' || target 
@@ -73,7 +75,9 @@ BEGIN
                 fraarcid    := rec.fraarcid;
                 cost    := rec.cost;
                 geom    := rec.geom;
-                miles	:= rec.miles;                
+                miles	:= rec.miles;   
+                consequence := rec.consequence;
+                derailmentrate := rec.derailmentrate;             
                 RETURN NEXT;
         END LOOP;
         RETURN;
