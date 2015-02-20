@@ -253,11 +253,11 @@
 	    		            	                
 	    		        		    			popup.setPosition(ol.proj.transform([dest.getPlace().geometry.location.D,dest.getPlace().geometry.location.k],'EPSG:4326','EPSG:3857'));
 	    		        		    			//data.totalFeatures = data.features.length;
-	    		        		    			
+	    		        		    			 		        		    				    		 
 	    		        		    			var geoData = new ol.format.GeoJSON().readFeatures(scope.routeData,{'featureProjection':'EPSG:3857'});
 	    		        		    			
 	    		        		    			geoData.sort(function(a,b){
-	    		        		    				return (b.p.segmentrisk - a.p.segmentrisk);
+	    		        		    				return (b.j.segmentrisk - a.j.segmentrisk);
 	    		        		    			});
 	    		        		    			
 	    		        		    			var subRisk = scope.risk * 0.8;
@@ -267,15 +267,16 @@
 	    		        		    				{
 	    		        		    					if(tempSum < subRisk)
 	    		        		    						{
-	    		        		    							tempSum += geoData[i].p.segmentrisk;
+	    		        		    							tempSum += geoData[i].j.segmentrisk;
 	    		        		    							geoData[i].setStyle(redStyle);
 	    		        		    						}
-	    		        		    					tempBody = tempBody +'<tr><td>'+geoData[i].p.fraarcid+'</td><td>'+geoData[i].p.miles+'</td><td>'+geoData[i].p.derailmentrate+'</td><td>'+geoData[i].p.consequence+'</td><td>'+geoData[i].p.segmentrisk+'</td></tr>';
+	    		        		    					tempBody = tempBody +'<tr><td>'+geoData[i].j.fraarcid+'</td><td>'+geoData[i].j.miles+'</td><td>'+geoData[i].j.derailmentrate+'</td><td>'+geoData[i].j.consequence+'</td><td>'+geoData[i].j.segmentrisk+'</td></tr>';
 	    		        		    				}
 	    		        		    			document.getElementById('routeInfoBody').innerHTML =tempBody;
+	    		        		    			$('#routeInfo').dialog('open');
 	    		        		    			routeSource.addFeatures(geoData);
 	    		        		    			tracks.setOpacity(0.35);
-	    		        		    			$('#routeInfo').dialog('open');
+	    		        		    			
     		        		    		}
     		        		    			
     		        		    		}
