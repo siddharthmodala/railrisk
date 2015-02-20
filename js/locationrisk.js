@@ -19,16 +19,9 @@
             var http = $http;
             var nodes = [];
             var baseurl = "/geoserver/railroad/wms";
+            var wsg84 = new ol.Sphere(6378137);
             ol.Extent =[-116.08019063893,22.89094998168,-66.271658797184,52.27135336056];
           
-//           	var statebg = new ol.layer.Image({
-//            		title:"Country Background",
-//            	  source: new ol.source.ImageWMS({
-//                  	  url: baseurl,
-//                	  params: {'LAYERS': 'railroad:statebg'},
-//                	  serverType: 'geoserver'
-//                	})
-//            	});
             var tempFunc = {}
         	tempFunc.getRenderFromQueryString = function() {
         		  var obj = {}, queryString = location.search.slice(1),
@@ -76,13 +69,10 @@
               	});
 
             	var view = new ol.View({
-            		//center: [-97, 38],
-            		center: [-11132436.5045,4866153.7734],
-//            		projection: "EPSG:4326",
-//                  maxResolution: 0.3561261015634373,
-            	  zoom:5,
-            	  minZoom:3,
-            	  maxZoom:14
+            	center: [-11132436.5045,4866153.7734],
+           	  	zoom:5,
+           	  	minZoom:3,
+           	  	maxZoom:14
             	});
 
             	var overlay = new ol.Overlay({
@@ -136,8 +126,6 @@
             	
             	map.addControl(new ol.control.ScaleLine());
             	map.addControl(new ol.control.ZoomSlider());
-            	var container  = document.getElementById('popup');
-            	var closebutton = document.getElementById('popup-closer');
             	map.on('click', function(evt) {
             		  var coordinate = evt.coordinate;
             		  
@@ -147,6 +135,7 @@
             		      {'INFO_FORMAT': 'application/json'});
             		  
             		  http.get(url).success(function(data){
+            			  $('#dialog').dialog('close');
             	        if(data.features.length >0)
             	        	{
             	        	    var L = parseFloat(data.features[0].properties.miles);
@@ -158,24 +147,26 @@
             	                scope.risk = Z * L * (1 - Math.pow((1 - P), D))*C;
             	                scope.releaseInterval = scope.risk * scope.annualTrainUnits;
 
-            	                //new popup code
-//            	                overlay.setPosition(coordinate);
-//            	                var element = overlay.getElement();
-//            	                $(element).popover({
-//            	                	'placement': 'top',
-//            	                    'animation': true,
-//            	                    'html': true,
-//            	                    'content': '<p>Risk:</p><code>' + parseFloat(scope.risk).toExponential(2) + '</code>'
-//            	                });
-//            	                $(element).popover('show');
-            	                //old popup code
-            	                overlay.setPosition(coordinate);
             	                document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
             	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toExponential(2);
             	                document.getElementById('segmentlength').innerHTML =parseFloat(scope.segmentLength).toFixed(1);
-            	        		
-            	        		container.style.display =  'block';
-            	        		//for(var index=0; index< data.features[0].geometry.coordinates[0].length;index++)
+            	                var dist =0;
+            	                if(nodes[0].getPlace() != null)
+            	                	{
+            	                		var temppoint = [nodes[0].getPlace().geometry.location.D , nodes[0].getPlace().geometry.location.k];
+            	                		var linepoint = data.features[0].geometry.coordinates[0];
+            	                		//var temp = new ol.geom.LineString([temppoint,linepoint[0]]);
+            	                		//var dist = Math.round(temp.getLength() * 100) / 100
+            	                		var wgs84Sam = new ol.Sphere(6378137);
+            	                		dist = wgs84Sam.haversineDistance(temppoint,linepoint[0]);
+            	                		for(var i =1; i<linepoint.length;i++)
+            	                			if(dist > wgs84Sam.haversineDistance(temppoint,linepoint[i]))
+            	                				dist = wgs84Sam.haversineDistance(temppoint, linepoint[i]);
+            	                		
+            	                	}
+            	                console.log(dist);
+            	                document.getElementById('evacuationRequired').innerHTML = dist < 8046.72 ? "Yes":"No"; // if with in 5 miles radius
+            	                $('#dialog').dialog('open');
             	        		var vectorfeatures = new ol.format.GeoJSON().readFeatures(data.features[0],{'featureProjection':'EPSG:3857'});
             	        			vectorSource.clear();
             	        			vectorSource.addFeatures(vectorfeatures);
@@ -185,34 +176,46 @@
             		  });           		  
             		});
             	
-            	closebutton.onclick = function() {
-            		container.style.display = 'none';
-            		closebutton.blur();
-            		vectorSource.clear();
-            		searchSrc.clear();
-            	  return false;
-            	};
+           	
+            	 $('#dialog').dialog({
+            		 	autoOpen: false,
+	                	dialogClass: "no-close",
+	                	position: { my: "left top", at: "left top", of: $('#mapdiv') },
+	                	buttons:{
+	                		"Close":function(){
+	                			vectorSource.clear();
+	                    		searchSrc.clear();
+	                    		document.getElementById('searchloc').value = '';
+	                    		$(this).dialog('close');
+	                		}
+	                	}
+	                	
+	                });
             	
             	var formstate = true;
             	
             	$scope.toggleDiv = function()
             	{
-        			var formdiv = $('#formdiv');
+            		var formdiv = $('#formdiv');
         			var mapdiv = $('#mapdiv');
+        			var dirIcon = $('#directionIcon');
             		if(formstate)
-            		{	formdiv.removeClass();
-            			mapdiv.removeClass().addClass('col-sm-12 col-md-12 map-wrapper')
-            			formdiv.hide();
-            			formstate = false;
-            		}
+            		{	
+            			mapdiv.removeClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3',500,updatemap).addClass('col-sm-12 col-md-12',10,updatemap);
+            			dirIcon.removeClass().addClass('glyphicon glyphicon-forward');
+            			
+               		}
             		else{
-            			formdiv.addClass("col-sm-4 col-md-3 sidebar");
-            			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 map-wrapper');
-            			formdiv.show();
-            			formstate = true;
-            		}
-            		map.updateSize();
+              			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3',500,updatemap);
+            			dirIcon.removeClass().addClass('glyphicon glyphicon-backward');
+                   		}
+            		formdiv.toggle('slide',{},500);
+            		formstate = !formstate;
             		
+            		function updatemap()
+            		{
+            			map.updateSize();
+            		}
             	}
             	
             	var initSearch = function initialize(elementName)
@@ -273,7 +276,7 @@
                     
                 });
             	
-
+                map.updateSize();
         }]);
 
 

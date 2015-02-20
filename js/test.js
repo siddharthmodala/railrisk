@@ -3,7 +3,11 @@
 
     app.controller("RouteRiskController", ['$scope', '$http', function($scope, $http) {
 
-    	$scope.tankCarDesigns = [{name: 'Car Design 1', value: 0.3}, {name: 'Car Design 2', value: 0.5}, {name: 'Car Design 3', value: 0.5}];
+        $scope.tankCarDesigns = [{name: 'Legacy DOT 111 (7/16 inch, no jacket)', value: 0.196},
+                                 {name: 'Legacy DOT 111 (7/16 inch, jacket)', value: 0.085},
+                                 {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103},
+                                 {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046},
+                                 {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037}];
         $scope.noOfCars = 200;
         $scope.tankCarDesign = $scope.tankCarDesigns[0];
         $scope.trainSpeed = 45;
@@ -13,16 +17,18 @@
         $scope.routeLength = 0;
         $scope.routeData = null;
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true},
-                          {displayName:'On Route Station 1',id:'onRoute1',visible:false},
-                          {displayName:'On Route Station 2',id:'onRoute2',visible:false},
-                          {displayName:'On Route Station 3',id:'onRoute3',visible:false},
+                          {displayName:'En-route Station 1',id:'onRoute1',visible:false},
+                          {displayName:'En-route Station 2',id:'onRoute2',visible:false},
+                          {displayName:'En-route Station 3',id:'onRoute3',visible:false},
+                          {displayName:'En-route Station 4',id:'onRoute4',visible:false},
+                          {displayName:'En-route Station 5',id:'onRoute5',visible:false},
                           {displayName:'Destination',id:'destination',visible:true}];
         var scope = $scope;
         var http = $http;
         var baseurl = "/geoserver/railroad/wms";
         var nodes = [];
         var extent =[-116.08019063893,22.89094998168,-66.271658797184,52.27135336056];
-       	
+       	var callCount =0;
      	var attribution = new ol.Attribution({
         	  html: 'Tiles &copy; <a href="http://services.arcgisonline.com/ArcGIS/' +
         	      'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
@@ -121,6 +127,8 @@
         	  view: view
         	});
 
+        	map.addControl(new ol.control.ScaleLine());
+        	map.addControl(new ol.control.ZoomSlider());
         	var params = {
         			  LAYERS: 'railroad:pgroute',
         			  FORMAT: 'image/png'
@@ -184,10 +192,8 @@
             			var lastVisible = nodes[0];
             			for(var index =1; index < $scope.nodeNames.length;index++){
             				if($scope.nodeNames[index].visible){
-            						if (index != $scope.nodeNames.length-1)
-            							$scope.calculateSubRisk(lastVisible,nodes[index],false)
-            						else
-            							$scope.calculateSubRisk(lastVisible,nodes[index],true)
+            						callCount+=1; // keep a count of the number of ajax call made so far
+           							$scope.calculateSubRisk(lastVisible,nodes[index])
             						lastVisible = nodes[index];
             					}
             			}
@@ -214,8 +220,8 @@
     		        		    				 	 L = parseFloat(data.features[i].properties.miles);
     		        		    				 	 Z = parseFloat(data.features[i].properties.derailmentrate);
     		        		    				 	 C = parseFloat(data.features[i].properties.consequence);
-    		        		    				 	 P = scope.tankCarDesign.value * scope.trainSpeed / 30; // 30 is the avg train speed on any line
-    		        		    				 	 D = 0.1 * scope.noOfCars * scope.trainSpeed / 30;
+    		        		    				 	 P = scope.tankCarDesign.value * scope.trainSpeed / 26; // 26 is the avg train speed on any line
+    		        		    				 	 D = 0.1 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
     		        		    				 	 segmentrisk = Z * L * (1 - Math.pow((1 - P), D)) * C;
     		        		    				 	 data.features[i].properties.segmentrisk = segmentrisk;
     		        		    				 	scope.risk += segmentrisk;
@@ -230,11 +236,11 @@
     		        		    			}
     		        		    			else
     		        		    			{
-		    		        		    			scope.routeData.features.concat(data.features);
+    		        		    					scope.routeData.features = scope.routeData.features.concat(data.features);
 		    		        		    			scope.routeData.totalFeatures = scope.routeData.features.length;
     		        		    			}
-    		        		    			
-    		        		    			if(lastCall)
+    		        		    			callCount-=1; // counter which maintains the number of ajax calls that were made.
+    		        		    			if(callCount == 0) // when this is the last ajax call 
     		        		    			{
     		        		    				scope.releaseInterval = 1/(scope.risk * scope.annualTrainUnits);
     		        		    				
@@ -301,7 +307,7 @@
             				return;
             			}
             		}
-        			alert('Only three on route stations are allowed.');
+        			alert('Only five on route stations are allowed.');
             }
             
             $scope.clearStations = function()
@@ -324,21 +330,39 @@
         	{
     			var formdiv = $('#formdiv');
     			var mapdiv = $('#mapdiv');
+    			var dirIcon = $('#directionIcon');
         		if(formstate)
         		{	formdiv.removeClass();
-        			mapdiv.removeClass().addClass('col-sm-12 col-md-12 map-wrapper')
+        			mapdiv.removeClass().addClass('col-sm-12 col-md-12')
+        			dirIcon.removeClass().addClass('glyphicon glyphicon-forward')
         			formdiv.hide();
         			formstate = false;
         		}
         		else{
         			formdiv.addClass("col-sm-4 col-md-3 sidebar");
-        			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 map-wrapper');
+        			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3');
+        			dirIcon.removeClass().addClass('glyphicon glyphicon-backward');
         			formdiv.show();
         			formstate = true;
         		}
+        		
         		map.updateSize();
         		
         	}
+        	
+        	
+        	var infoDivState = false;
+        	
+        	$scope.toggleInfoDiv = function(){
+        		var horizontalDiv = $('#InfoDiv');
+        		var mapdiv = $('#mapdiv');
+    			var dirIcon = $('#hdirectionIcon');
+    			horizontalDiv.hide();
+    			//horizontalDiv.css('margin-bottom',-$(this).width());
+    			
+        		
+        	}
+        	$scope.toggleInfoDiv();
         	
         	function numberWithCommas(x) {
         	    var parts = x.toString().split(".");

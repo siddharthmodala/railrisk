@@ -10,6 +10,9 @@
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom styles for this template -->
 <link href="css/dashboard.css" rel="stylesheet">
+<link href="css/jquery-ui.min.css" rel="stylesheet">
+<link href="css/jquery-ui.structure.min.css" rel="stylesheet">
+<link href="css/jquery-ui.theme.min.css" rel="stylesheet">
 <link rel="stylesheet" href="css/ol.css" type="text/css">
 <link href="css/style.css" rel="stylesheet">
 <title>R3 Analysis</title>
@@ -27,15 +30,15 @@
 				</button>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li><a href="index.html">Location Risk</a></li>
-						<li><a href="#">Route Risk</a></li>
+						<li><a href="index.html" style="font-size: 18px;">Location
+								Risk</a></li>
+						<li><a href="#" style="font-size: 18px;">Route Risk</a></li>
 						<!--<li><a href="#">Risk Communication</a></li>-->
-						<li><a href="#">Help</a></li>
+						<li><a href="#" style="font-size: 18px;">Help</a></li>
 					</ul>
-					<a class="navbar-brand" style="padding: 0px; padding-left: 25%;"><img
-						src="js/img/Rutgers25.png"
-						style="display: inline-block; width: inherit; height: inherit; padding: 0px"
-						alt="">Risk Analysis of Crude Oil by Rail</a>
+					<a class="navbar-brand"
+						style="padding: 0px; padding-top: 0.7%; padding-left: 12%; font-size: 26px;">
+						Crude Oil by Rail Risk Assessment(CBR-Risk)</a>
 				</div>
 			</div>
 			<div id="navbar" class="navbar-collapse collapse"></div>
@@ -48,7 +51,9 @@
 			<div class="col-sm-4 col-md-3 sidebar transition" id="formdiv">
 				<form name="test" action="#" class="form-horizontal">
 					<fieldset class="scheduler-border">
-						<legend class="scheduler-border"><h4>Route Search</h4></legend>
+						<legend class="scheduler-border">
+							<h4>Route</h4>
+						</legend>
 						<div class="form-group" ng-repeat="node in nodeNames"
 							ng-show="node.visible">
 							<label for="{{node.displayName}}" class="col-sm-4">{{node.displayName}}</label>
@@ -60,7 +65,7 @@
 						</div>
 					</fieldset>
 					<button type="button" class="btn btn-success"
-						ng-click="addStation()">Add on route station</button>
+						ng-click="addStation()">Add En-route station</button>
 					<button type="button" class="btn btn-primary"
 						ng-click="clearStations()">Clear</button>
 					<!-- <div class="form-group">
@@ -70,8 +75,11 @@
 						</div>
 					</div> -->
 
-					<fieldset class="scheduler-border" style="margin-top:10px !important">
-						<legend class="scheduler-border"><h4>Train configuration</h4></legend>
+					<fieldset class="scheduler-border"
+						style="margin-top: 20px !important">
+						<legend class="scheduler-border">
+							<h4>Train</h4>
+						</legend>
 						<div class="form-group">
 							<label for="annualTrainUnits" class="col-sm-6">Annual
 								number of crude oil unit trains</label>
@@ -111,22 +119,42 @@
 						</div>
 					</fieldset>
 					<button type="button" class="btn btn-success"
-						ng-click="calculateRisk()">Calculate Risk</button>
+						ng-click="calculateRisk()">Calculate Total Risk</button>
 					<button type="button" class="btn btn-primary"
 						ng-click="clearRoute()">Clear All</button>
 				</form>
 
 				<div id="footer1">
-					<!--<img src="js/img/Rutgers25.png"  />-->
+					<img src="js/img/Rutgers_logotype.gif"
+						style="z-index: -10000; display: inline-block; width: inherit; height: 10%; padding: 0px"
+						alt="" />
 				</div>
 			</div>
-			<div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 map-wrapper" id="mapdiv">
-			<div class="vsplitbar" unselectable="on"
-				style="z-index: 100; position: absolute; margin-left:-20px; -webkit-user-select: none; cursor: pointer; height:100%" ng-click="toggleDiv()">
-				<a href="javascript:void(0)" on-click="toggleDiv()" accesskey="I" tabindex="0"
-					title="vsplitbar"></a>
-			</div>
-				<div id=map></div>
+			<div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3"
+				id="mapdiv">
+				<div class="row">
+					<div class="vsplitbar" unselectable="on" ng-click="toggleDiv()">
+						<span id="directionIcon" class="glyphicon glyphicon-backward"
+							style="position: relative; top: 50%; left: 20%"
+							aria-hidden="true"></span>
+					</div>
+					<div class="map-wrapper map-wrapper-route">
+						<div id=map></div>
+					</div>
+					<div class="hsplitbar " unselectable="on" ng-click="toggleInfoDiv()">
+						<span id="hdirectionIcon" class="glyphicon glyphicon-menu-up"
+							style="position: relative; top: 20%; left: 50%"
+							aria-hidden="true"></span>
+					</div>
+				</div>
+				<div class="row info" id="InfoDiv">
+					<div class="panel panel-default InfoPanel">
+						<div class="panel-heading">
+							<h3 class="panel-title">Panel title</h3>
+						</div>
+						<div class="panel-body">Panel content</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -135,19 +163,20 @@
 		<div id="popup-content">
 			<div class="row">
 				<div class="col-md-12">
-					<h4>Annual Route Risk</h4> 
+					<h4>Annual Route Risk</h4>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-12">
-				<table class="table table-bordered fontupdate" >
+					<table class="table table-bordered fontupdate">
 						<tbody>
 							<tr>
-								<td><b>Annual release risk </br>(number of affected persons)</b></td>
+								<td><b>Annual release risk </br>(number of affected persons)
+								</b></td>
 								<td style="width: 65px;"><b><span id="riskcontent"></span></b></td>
 							</tr>
 							<tr>
-								<td><b>Interval (year) between release incidents</b></td>
+								<td><b>Interval (years) between release incidents</b></td>
 								<td style="width: 65px;"><b><span id="intervalcontent"></span></b></td>
 							</tr>
 							<tr>
@@ -170,13 +199,14 @@
 
 	<script
 		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>		
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/doc.min.js"></script>
 	<script src="js/ol.js"></script>
 	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 	<script src="js/ie10-viewport-bug-workaround.js"></script>
 	<script type="text/javascript" src="js/angular.min.js"></script>
-	<script type="text/javascript" src="js/test.js"></script>
+	<script type="text/javascript" src="js/routerisk.js"></script>
 	<script
 		src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
 	<!-- <script src="js/test.js"></script> -->

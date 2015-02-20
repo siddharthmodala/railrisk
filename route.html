@@ -9,6 +9,7 @@
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom styles for this template -->
+<link href="css/jquery-ui.min.css" rel="stylesheet">
 <link href="css/dashboard.css" rel="stylesheet">
 <link rel="stylesheet" href="css/ol.css" type="text/css">
 <link href="css/style.css" rel="stylesheet">
@@ -27,15 +28,15 @@
 				</button>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li><a href="index.html" style="font-size: 18px;">Location Risk</a></li>
+						<li><a href="index.html" style="font-size: 18px;">Location
+								Risk</a></li>
 						<li><a href="#" style="font-size: 18px;">Route Risk</a></li>
 						<!--<li><a href="#">Risk Communication</a></li>-->
 						<li><a href="#" style="font-size: 18px;">Help</a></li>
 					</ul>
-					<a class="navbar-brand" style="padding: 0px; padding-left: 12%; font-size: 26px;"><img
-						src="js/img/Rutgers25.png"
-						style="display: inline-block; width: inherit; height: inherit; padding: 0px;"
-						alt="">Risk Analysis of Crude Oil by Rail</a>
+					<a class="navbar-brand"
+						style="padding: 0px; padding-top: 0.7%; padding-left: 12%; font-size: 26px;">
+						Crude Oil by Rail Risk Assessment(CBR-Risk)</a>
 				</div>
 			</div>
 			<div id="navbar" class="navbar-collapse collapse"></div>
@@ -48,7 +49,9 @@
 			<div class="col-sm-4 col-md-3 sidebar transition" id="formdiv">
 				<form name="test" action="#" class="form-horizontal">
 					<fieldset class="scheduler-border">
-						<legend class="scheduler-border"><h4>Route</h4></legend>
+						<legend class="scheduler-border">
+							<h4>Route</h4>
+						</legend>
 						<div class="form-group" ng-repeat="node in nodeNames"
 							ng-show="node.visible">
 							<label for="{{node.displayName}}" class="col-sm-4">{{node.displayName}}</label>
@@ -70,8 +73,11 @@
 						</div>
 					</div> -->
 
-					<fieldset class="scheduler-border" style="margin-top:20px !important">
-						<legend class="scheduler-border"><h4>Train</h4></legend>
+					<fieldset class="scheduler-border"
+						style="margin-top: 20px !important">
+						<legend class="scheduler-border">
+							<h4>Train</h4>
+						</legend>
 						<div class="form-group">
 							<label for="annualTrainUnits" class="col-sm-6">Annual
 								number of crude oil unit trains</label>
@@ -117,43 +123,46 @@
 				</form>
 
 				<div id="footer1">
-					<!--<img src="js/img/Rutgers25.png"  />-->
+					<img src="js/img/Rutgers_logotype.gif"
+						style="z-index: -10000; display: inline-block; width: inherit; height: 10%; padding: 0px"
+						alt="" />
 				</div>
 			</div>
-			<div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 map-wrapper" id="mapdiv">
-			<div class="vsplitbar" unselectable="on"
-				style="z-index: 100; position: absolute; margin-left:-20px; -webkit-user-select: none; cursor: pointer; height:100%" ng-click="toggleDiv()">
-				<a href="javascript:void(0)" on-click="toggleDiv()" accesskey="I" tabindex="0"
-					title="vsplitbar"></a>
-			</div>
-				<div id=map></div>
+			<div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3"
+				id="mapdiv">
+				<div class="row">
+					<div class="vsplitbar" unselectable="on" ng-click="toggleDiv()">
+						<span id="directionIcon" class="glyphicon glyphicon-backward"
+							style="position: relative; top: 50%; left: 20%"
+							aria-hidden="true"></span>
+					</div>
+					<div class="map-wrapper">
+						<div id=map></div>
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
-	<div id="popup" class="ol-popup">
-		<a href="#" id="popup-closer" class="ol-popup-closer"></a>
-		<div id="popup-content">
+		<div id="routeInfo" title="Annual Route Risk Info">
 			<div class="row">
 				<div class="col-md-12">
-					<h4>Annual Route Risk</h4> 
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-12">
-				<table class="table table-bordered fontupdate" >
-						<tbody>
+					<table class="table table-bordered fontupdate">
+						<thead>
 							<tr>
-								<td><b>Annual release risk </br>(number of affected persons)</b></td>
-								<td style="width: 65px;"><b><span id="riskcontent"></span></b></td>
+								<td>Fraarcid</td>
+								<td>Length</td>
+								<td>Derailment Rate</td>
+								<td>Consequence</td>
+								<td>Segment Risk</td>
 							</tr>
-							<tr>
-								<td><b>Interval (years) between release incidents</b></td>
-								<td style="width: 65px;"><b><span id="intervalcontent"></span></b></td>
-							</tr>
-							<tr>
-								<td><b>Segment miles</b></td>
-								<td style="width: 65px;"><b><span id="routeLength"></span></b></td>
-							</tr>
+						</thead>
+						<tbody id="routeInfoBody">
+<!-- 													<tr ng-repeat="data in nodeNames"> -->
+<!-- 														<td>{{data.displayName}}</td> -->
+<!-- 														<td>{{data.p.miles}}</td> -->
+<!-- 														<td>{{data.p.derailmentrate}}</td> -->
+<!-- 														<td>{{data.p.consequence}}</td> -->
+<!-- 														<td>{{data.p.segmentrisk}}</td> -->
+<!-- 							</tr> -->
 						</tbody>
 					</table>
 				</div>
@@ -161,6 +170,66 @@
 			</div>
 		</div>
 	</div>
+
+	<div id="dialog" title="Annual Route Risk">
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-bordered fontupdate">
+					<tbody>
+						<tr>
+							<td><b>Annual release risk </br>(number of affected persons)
+							</b></td>
+							<td style="width: 65px;"><b><span id="riskcontent"></span></b></td>
+						</tr>
+						<tr>
+							<td><b>Interval (years) between release incidents</b></td>
+							<td style="width: 65px;"><b><span id="intervalcontent"></span></b></td>
+						</tr>
+						<tr>
+							<td><b>Segment miles</b></td>
+							<td style="width: 65px;"><b><span id="routeLength"></span></b></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+	</div>
+
+
+
+	<!-- 	<div id="popup" class="ol-popup"> -->
+	<!-- 		<a href="#" id="popup-closer" class="ol-popup-closer"></a> -->
+	<!-- 		<div id="popup-content"> -->
+	<!-- 			<div class="row"> -->
+	<!-- 				<div class="col-md-12"> -->
+	<!-- 					<h4>Annual Route Risk</h4> -->
+	<!-- 				</div> -->
+	<!-- 			</div> -->
+	<!-- 			<div class="row"> -->
+	<!-- 				<div class="col-md-12"> -->
+	<!-- 					<table class="table table-bordered fontupdate"> -->
+	<!-- 						<tbody> -->
+	<!-- 							<tr> -->
+	<!-- 								<td><b>Annual release risk </br>(number of affected persons) -->
+	<!-- 								</b></td> -->
+	<!-- 								<td style="width: 65px;"><b><span id="riskcontent"></span></b></td> -->
+	<!-- 							</tr> -->
+	<!-- 							<tr> -->
+	<!-- 								<td><b>Interval (years) between release incidents</b></td> -->
+	<!-- 								<td style="width: 65px;"><b><span id="intervalcontent"></span></b></td> -->
+	<!-- 							</tr> -->
+	<!-- 							<tr> -->
+	<!-- 								<td><b>Segment miles</b></td> -->
+	<!-- 								<td style="width: 65px;"><b><span id="routeLength"></span></b></td> -->
+	<!-- 							</tr> -->
+	<!-- 						</tbody> -->
+	<!-- 					</table> -->
+	<!-- 				</div> -->
+
+	<!-- 			</div> -->
+	<!-- 		</div> -->
+	<!-- 	</div> -->
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -170,6 +239,7 @@
 
 	<script
 		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/doc.min.js"></script>
 	<script src="js/ol.js"></script>

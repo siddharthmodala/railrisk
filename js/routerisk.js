@@ -16,6 +16,14 @@
         $scope.releaseInterval =0
         $scope.routeLength = 0;
         $scope.routeData = null;
+        $scope.routeInfo = [{p:{
+        	consequence:'123',
+        	miles:'123',
+        	derailmentrate:'233',
+        	fraarcid:'323',
+        	segmentrisk:'0.23'
+        }}
+        ];
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true},
                           {displayName:'En-route Station 1',id:'onRoute1',visible:false},
                           {displayName:'En-route Station 2',id:'onRoute2',visible:false},
@@ -155,15 +163,11 @@
         	});
         	map.addLayer(vectorLayer);
         	var result;
-        	var container  = document.getElementById('popup');
-        	var closebutton = document.getElementById('popup-closer');
-
         	var closePopUP = function(){
-        	  	container.style.display = 'none';
-        		closebutton.blur();
         		vectorSrc.clear();
           	  	routeSource.clear();
-        		//scope.clearRoute();
+          	  	$('#dialog').dialog('close');
+          	  	$('#routeInfo').dialog('close');
         		scope.routeLength = 0;
         		scope.risk =0;
         		scope.releaseInterval =0;
@@ -176,12 +180,10 @@
         				document.getElementById(scope.nodeNames[index].id).value = '';
         			}
         		document.getElementById(scope.nodeNames[0].id).value = '';
-        		document.getElementById(scope.nodeNames[4].id).value = '';
+        		document.getElementById(scope.nodeNames[6].id).value = '';
         		scope.$apply();
         		return false;
         	}
-        	
-        	closebutton.onclick = closePopUP;
         	
             $scope.clearRoute = closePopUP;
             
@@ -247,7 +249,7 @@
 	    		                    			document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
 	    		            	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toFixed(2);//.toExponential(2);
 	    		            	                document.getElementById('routeLength').innerHTML =numberWithCommas(parseFloat(scope.routeLength).toFixed(1));
-	    		            	                container.style.display =  'block';
+	    		            	                $('#dialog').dialog('open');
 	    		            	                
 	    		        		    			popup.setPosition(ol.proj.transform([dest.getPlace().geometry.location.D,dest.getPlace().geometry.location.k],'EPSG:4326','EPSG:3857'));
 	    		        		    			//data.totalFeatures = data.features.length;
@@ -257,10 +259,10 @@
 	    		        		    			geoData.sort(function(a,b){
 	    		        		    				return (b.p.segmentrisk - a.p.segmentrisk);
 	    		        		    			});
-	    		        		    			 
+	    		        		    			
 	    		        		    			var subRisk = scope.risk * 0.8;
 	    		        		    			var tempSum = 0;
-	    		        		    			
+	    		        		    			var tempBody ='';
 	    		        		    			for(var i=0; i<geoData.length; i++)
 	    		        		    				{
 	    		        		    					if(tempSum < subRisk)
@@ -268,9 +270,12 @@
 	    		        		    							tempSum += geoData[i].p.segmentrisk;
 	    		        		    							geoData[i].setStyle(redStyle);
 	    		        		    						}
+	    		        		    					tempBody = tempBody +'<tr><td>'+geoData[i].p.fraarcid+'</td><td>'+geoData[i].p.miles+'</td><td>'+geoData[i].p.derailmentrate+'</td><td>'+geoData[i].p.consequence+'</td><td>'+geoData[i].p.segmentrisk+'</td></tr>';
 	    		        		    				}
+	    		        		    			document.getElementById('routeInfoBody').innerHTML =tempBody;
 	    		        		    			routeSource.addFeatures(geoData);
 	    		        		    			tracks.setOpacity(0.35);
+	    		        		    			$('#routeInfo').dialog('open');
     		        		    		}
     		        		    			
     		        		    		}
@@ -280,6 +285,26 @@
             	
             }
             
+       	 $('#dialog').dialog({
+ 		 	autoOpen: false,
+ 		 	dialogClass:"dialog1",
+         	position: { my: "left top", at: "left top", of: $('#mapdiv') },
+         	close:closePopUP
+         	
+         });
+       	 
+       	 $('#routeInfo').dialog({
+  		 	autoOpen: false,
+  		 	dialogClass:"routeInfo",
+  		 	height: 300,
+  		 	width:550,
+          	position: { my: "right bottom", at: "right bottom", of: $('#mapdiv') },
+          	close:function(){
+          			$('#routeInfo').dialog('close');
+          		}
+          	
+          	
+          });
             
             	$scope.validateCalc = function(){
             	
@@ -330,21 +355,37 @@
         	{
     			var formdiv = $('#formdiv');
     			var mapdiv = $('#mapdiv');
+    			var dirIcon = $('#directionIcon');
         		if(formstate)
-        		{	formdiv.removeClass();
-        			mapdiv.removeClass().addClass('col-sm-12 col-md-12 map-wrapper')
-        			formdiv.hide();
-        			formstate = false;
-        		}
+        		{
+        			mapdiv.removeClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3',500,updatemap).addClass('col-sm-12 col-md-12',10,updatemap);
+        			dirIcon.removeClass().addClass('glyphicon glyphicon-forward');
+           		}
         		else{
-        			formdiv.addClass("col-sm-4 col-md-3 sidebar");
-        			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 map-wrapper');
-        			formdiv.show();
-        			formstate = true;
+        			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3',500,updatemap);
+        			dirIcon.removeClass().addClass('glyphicon glyphicon-backward');			
         		}
-        		map.updateSize();
+        		formdiv.toggle('slide',{},500);
+        		formstate = !formstate;
+        		function updatemap()
+        		{
+        			map.updateSize();
+        		}
+        	}
+        	
+        	
+        	var infoDivState = false;
+        	
+        	$scope.toggleInfoDiv = function(){
+        		var horizontalDiv = $('#InfoDiv');
+        		var mapdiv = $('#mapdiv');
+    			var dirIcon = $('#hdirectionIcon');
+    			horizontalDiv.hide();
+    			//horizontalDiv.css('margin-bottom',-$(this).width());
+    			
         		
         	}
+        	$scope.toggleInfoDiv();
         	
         	function numberWithCommas(x) {
         	    var parts = x.toString().split(".");
@@ -394,7 +435,7 @@
                 }	
             });
             
-            
+            console.log($scope.routeInfo);
             
             
             
