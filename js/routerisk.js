@@ -114,7 +114,7 @@
     		        color: 'rgba(255, 255, 255, 0.2)'
     		      }),
     		      stroke: new ol.style.Stroke({
-    		        color: '#0000FF',
+    		        color: '#1995dc',
     		        width: 8
     		      })
     		    })
