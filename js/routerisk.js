@@ -205,7 +205,7 @@
             
             map.on('singleclick',function(evt){
             	var feature = map.forEachFeatureAtPixel(evt.pixel,function(feature,layer){
-            		console.log(feature);
+            		//console.log(feature);
             		if(feature.getId().indexOf('pgroute') > -1)
             			return feature;
             		
