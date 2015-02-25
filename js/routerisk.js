@@ -17,6 +17,7 @@
         $scope.releaseInterval =0
         $scope.routeLength = 0;
         $scope.routeData = null;
+        $scope.showloader = false;
         $scope.routeInfo = [{p:{
         	consequence:'123',
         	miles:'123',
@@ -192,6 +193,7 @@
         		tracks.setOpacity(0.99);
         		document.getElementById('routeInfoBody').innerHTML ='';
         		callCount =0;
+        		scope.showloader = false;
         		//scope.$apply();
         		return false;
         	}
@@ -232,6 +234,7 @@
             	if($scope.validateCalc())
             		{
             			closePopUP();
+            			$scope.showloader = true;
             			var lastVisible = nodes[0];
             			for(var index =1; index < $scope.nodeNames.length;index++){
             				if($scope.nodeNames[index].visible){
@@ -240,7 +243,7 @@
             						lastVisible = nodes[index];
             					}
             			}
-
+            			
             		}
            }
             
@@ -328,12 +331,13 @@
 	    		        		    			//$('#routeInfo').dialog('open');
 	    		        		    			routeSource.addFeatures(geoData);
 	    		        		    			tracks.setOpacity(0.35);
-	    		        		    			
+	    		        		    			$scope.showloader = false;
     		        		    		}
     		        		    			
     		        		    		}
     		        		    }).error(function(data){
     		        		    	alert('Error calculating route risk');
+    		        		    	$scope.showloader = false;
     		        		    });  		    
             	
             }

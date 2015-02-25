@@ -67,9 +67,9 @@
 						</div>
 					</fieldset>
 					<button type="button" class="btn btn-success"
-						ng-click="addStation()">Add En-route station</button>
+						ng-click="addStation()" ng-disabled="showloader">Add En-route station</button>
 					<button type="button" class="btn btn-primary"
-						ng-click="clearStations()">Clear</button>
+						ng-click="clearStations()" ng-disabled="showloader">Clear</button>
 					<!-- <div class="form-group">
 						<label for="deststation">Destination</label>
 						<div>
@@ -121,9 +121,10 @@
 						</div>
 					</fieldset>
 					<button type="button" class="btn btn-success"
-						ng-click="calculateRisk()">Calculate Total Risk</button>
+						ng-click="calculateRisk()" ng-disabled="showloader">Calculate Total Risk</button>
 					<button type="button" class="btn btn-primary"
-						ng-click="clearAll()">Clear All</button>
+						ng-click="clearAll()" ng-disabled="showloader">Clear All</button>
+					<img alt="calculating route..." src="js/img/ajax-loader.gif" ng-show="showloader">
 				</form>
 
 				<div id="footer1">
