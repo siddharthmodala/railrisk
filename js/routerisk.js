@@ -13,6 +13,7 @@
         $scope.trainSpeed = 45;
         $scope.annualTrainUnits = 20;
         $scope.risk = 0;
+        $scope.riskComp = 0; // with out consequence component used in calc. release interval.
         $scope.releaseInterval =0
         $scope.routeLength = 0;
         $scope.routeData = null;
@@ -24,13 +25,13 @@
         	segmentrisk:'0.23'
         }}
         ];
-        $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true},
-                          {displayName:'En-route Station 1',id:'onRoute1',visible:false},
-                          {displayName:'En-route Station 2',id:'onRoute2',visible:false},
-                          {displayName:'En-route Station 3',id:'onRoute3',visible:false},
-                          {displayName:'En-route Station 4',id:'onRoute4',visible:false},
-                          {displayName:'En-route Station 5',id:'onRoute5',visible:false},
-                          {displayName:'Destination',id:'destination',visible:true}];
+        $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true,showcross:false,placeid:null},
+                          {displayName:'En-route Station 1',id:'onRoute1',visible:false,showcross:true,placeid:null},
+                          {displayName:'En-route Station 2',id:'onRoute2',visible:false,showcross:true,placeid:null},
+                          {displayName:'En-route Station 3',id:'onRoute3',visible:false,showcross:true,placeid:null},
+                          {displayName:'En-route Station 4',id:'onRoute4',visible:false,showcross:true,placeid:null},
+                          {displayName:'En-route Station 5',id:'onRoute5',visible:false,showcross:true,placeid:null},
+                          {displayName:'Destination',id:'destination',visible:true,showcross:false,placeid:null}];
         var scope = $scope;
         var http = $http;
         var baseurl = "/geoserver/railroad/wms";
@@ -66,9 +67,6 @@
                 	})
           	});
         	
-        	var popup = new ol.Overlay({
-        		  element: document.getElementById('popup')
-        		});
      	
         	var view = new ol.View({
         		//center: [-97, 38],
@@ -79,10 +77,6 @@
         	  minZoom:3,
         	  maxZoom:14
         	});
-        	
-        	var overlay = new ol.Overlay({
-      		  element: document.getElementById('popup')
-      		});
         	
         	var tempFunc = {}
         	tempFunc.getRenderFromQueryString = function() {
@@ -114,6 +108,16 @@
     		      })
     		    })
         	
+        	var blueStyle = new ol.style.Style({
+    		    fill: new ol.style.Fill({
+    		        color: 'rgba(255, 255, 255, 0.2)'
+    		      }),
+    		      stroke: new ol.style.Stroke({
+    		        color: '#0000FF',
+    		        width: 8
+    		      })
+    		    })
+        	
 			var routeLayer = new ol.layer.Vector({
 				source:routeSource,
 				style:new ol.style.Style({
@@ -126,12 +130,20 @@
         		      })
         		    })
 			});
+        	
+        	var routeHighlightSrc = new ol.source.Vector({
+        		features: []
+        	});
+        	
+        	var routeHighlightLayer = new ol.layer.Vector({
+        		source: routeHighlightSrc,
+        		style:blueStyle
+        	});
 			
         	var map = new ol.Map({
-        	  layers: [statebg,tracks,routeLayer],
+        	  layers: [statebg,tracks,routeLayer,routeHighlightLayer],
         	  target: 'map',
         	  renderer:tempFunc.getRenderFromQueryString(),
-        	  overlays:[overlay,popup],
         	  view: view
         	});
 
@@ -163,34 +175,62 @@
         	});
         	map.addLayer(vectorLayer);
         	var result;
+        	var highlightFeature = null;
+        	var oldhighlightedStyle = null;
+        	
         	var closePopUP = function(){
-        		vectorSrc.clear();
           	  	routeSource.clear();
           	  	$('#dialog').dialog('close');
-          	  	$('#routeInfo').dialog('close');
+          	  	$('#segInfo').dialog('close');
         		scope.routeLength = 0;
         		scope.risk =0;
+        		scope.riskComp =0;
         		scope.releaseInterval =0;
-        		 $scope.routeData =null;
-        		 tracks.setOpacity(0.99);
-        		for(var index =1;index<scope.nodeNames.length-1;index++)
-        			{
-        				
-        				scope.nodeNames[index].visible=false;
-        				document.getElementById(scope.nodeNames[index].id).value = '';
-        			}
-        		document.getElementById(scope.nodeNames[0].id).value = '';
-        		document.getElementById(scope.nodeNames[6].id).value = '';
+        		$scope.routeData =null;
+        		highlightFeature = null;
+            	oldhighlightedStyle = null;
+        		tracks.setOpacity(0.99);
+        		document.getElementById('routeInfoBody').innerHTML ='';
+        		callCount =0;
         		scope.$apply();
         		return false;
         	}
         	
-            $scope.clearRoute = closePopUP;
+            $scope.clearAll= function(){
+            	closePopUP();
+            	$scope.clearStations();
+            };
             
+            map.on('singleclick',function(evt){
+            	var feature = map.forEachFeatureAtPixel(evt.pixel,function(feature,layer){
+            		console.log(feature);
+            		if(feature.getId().indexOf('pgroute') > -1)
+            			return feature;
+            		
+            	});
+
+            	if(feature)
+            	{
+                	if(highlightFeature)
+                	{
+                		highlightFeature.setStyle(oldhighlightedStyle);
+                		highlightFeature = null;
+                	}
+            		oldhighlightedStyle = feature.getStyle();
+            		highlightFeature = feature;
+            		feature.setStyle(blueStyle);
+	                document.getElementById('segriskcontent').innerHTML = parseFloat(feature.j.segmentrisk).toExponential(2);
+	                document.getElementById('segintervalcontent').innerHTML = parseFloat(feature.j.releaseInterval).toFixed(2);
+	                document.getElementById('segmentlength').innerHTML =parseFloat(feature.j.miles).toFixed(1);
+	                $('#segInfo').dialog('open');
+            	}
+            });
+                     
             $scope.calculateRisk = function(){
             	
             	if($scope.validateCalc())
             		{
+            			closePopUP();
             			var lastVisible = nodes[0];
             			for(var index =1; index < $scope.nodeNames.length;index++){
             				if($scope.nodeNames[index].visible){
@@ -216,7 +256,7 @@
     		        		    	
     		        		    	if(data!=null)
     		        		    		{
-    		        		    			var L,Z,P,D,C,segmentrisk;
+    		        		    			var L,Z,P,D,C,subsegrisk;
     		        		    			for(var i =0; i< data.features.length;i++)
     		        		    				{
     		        		    				 	 L = parseFloat(data.features[i].properties.miles);
@@ -224,10 +264,13 @@
     		        		    				 	 C = parseFloat(data.features[i].properties.consequence);
     		        		    				 	 P = scope.tankCarDesign.value * scope.trainSpeed / 26; // 26 is the avg train speed on any line
     		        		    				 	 D = 0.1 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
-    		        		    				 	 segmentrisk = Z * L * (1 - Math.pow((1 - P), D)) * C;
-    		        		    				 	 data.features[i].properties.segmentrisk = segmentrisk;
-    		        		    				 	scope.risk += segmentrisk;
-    		        		    				 	scope.routeLength += L;      		    				
+    		        		    				 	subsegrisk = Z * L * (1 - Math.pow((1 - P), D)) ;
+    		        		    				 	data.features[i].properties.segmentrisk = subsegrisk *C;
+    		        		    				 	data.features[i].properties.releaseInterval= 1/(subsegrisk * scope.annualTrainUnits);
+    		        		    				 	data.features[i].properties.densitypermile= C / 0.785; // area per sq. mile
+    		        		    				 	scope.risk += subsegrisk * C;
+    		        		    				 	scope.riskComp +=subsegrisk;
+    		        		    				 	scope.routeLength += L;   		    				
     		        		    				}
     		        		    			
     		        		    			
@@ -244,18 +287,18 @@
     		        		    			callCount-=1; // counter which maintains the number of ajax calls that were made.
     		        		    			if(callCount == 0) // when this is the last ajax call 
     		        		    			{
-    		        		    				scope.releaseInterval = 1/(scope.risk * scope.annualTrainUnits);
+    		        		    				scope.releaseInterval = 1/(scope.riskComp * scope.annualTrainUnits);
     		        		    				
 	    		                    			document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
 	    		            	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toFixed(2);//.toExponential(2);
 	    		            	                document.getElementById('routeLength').innerHTML =numberWithCommas(parseFloat(scope.routeLength).toFixed(1));
 	    		            	                $('#dialog').dialog('open');
 	    		            	                
-	    		        		    			popup.setPosition(ol.proj.transform([dest.getPlace().geometry.location.D,dest.getPlace().geometry.location.k],'EPSG:4326','EPSG:3857'));
+	    		        		    			//popup.setPosition(ol.proj.transform([dest.getPlace().geometry.location.D,dest.getPlace().geometry.location.k],'EPSG:4326','EPSG:3857'));
 	    		        		    			//data.totalFeatures = data.features.length;
 	    		        		    			 		        		    				    		 
 	    		        		    			var geoData = new ol.format.GeoJSON().readFeatures(scope.routeData,{'featureProjection':'EPSG:3857'});
-	    		        		    			
+	    		        		    			//scope.routeInfo = geoData;
 	    		        		    			geoData.sort(function(a,b){
 	    		        		    				return (b.j.segmentrisk - a.j.segmentrisk);
 	    		        		    			});
@@ -270,10 +313,18 @@
 	    		        		    							tempSum += geoData[i].j.segmentrisk;
 	    		        		    							geoData[i].setStyle(redStyle);
 	    		        		    						}
-	    		        		    					tempBody = tempBody +'<tr><td>'+geoData[i].j.fraarcid+'</td><td>'+geoData[i].j.miles+'</td><td>'+geoData[i].j.derailmentrate+'</td><td>'+geoData[i].j.consequence+'</td><td>'+geoData[i].j.segmentrisk+'</td></tr>';
+	    		        		    					tempBody = tempBody +'<tr><td>'+geoData[i].j.fraarcid+'</td><td>'
+	    		        		    					+geoData[i].j.stateab+'</td><td>'
+	    		        		    					+(geoData[i].j.sigsys?geoData[i].j.sigsys:'') +'</td><td>'
+	    		        		    					+(geoData[i].j.subdiv?geoData[i].j.subdiv:'') +'</td><td>'
+	    		        		    					+geoData[i].j.rrowner+'</td><td>'
+	    		        		    					+parseFloat(geoData[i].j.miles).toFixed(1) +'</td><td>'
+	    		        		    					+parseFloat(geoData[i].j.densitypermile).toFixed(1)+'</td><td>'
+	    		        		    					+parseFloat(geoData[i].j.segmentrisk).toExponential(2)+'</td><td>'
+	    		        		    					+parseFloat(geoData[i].j.releaseInterval).toFixed(2) +'</td></tr>';
 	    		        		    				}
 	    		        		    			document.getElementById('routeInfoBody').innerHTML =tempBody;
-	    		        		    			$('#routeInfo').dialog('open');
+	    		        		    			//$('#routeInfo').dialog('open');
 	    		        		    			routeSource.addFeatures(geoData);
 	    		        		    			tracks.setOpacity(0.35);
 	    		        		    			
@@ -288,23 +339,25 @@
             
        	 $('#dialog').dialog({
  		 	autoOpen: false,
- 		 	dialogClass:"dialog1",
+ 		 	dialogClass:"dialog1 no-close",
          	position: { my: "left top", at: "left top", of: $('#mapdiv') },
-         	close:closePopUP
-         	
+         	buttons:{
+        		"Close":closePopUP
+        	}
          });
        	 
-       	 $('#routeInfo').dialog({
+       	 $('#segInfo').dialog({
   		 	autoOpen: false,
-  		 	dialogClass:"routeInfo",
-  		 	height: 300,
-  		 	width:550,
+  		 	dialogClass:"segInfo no-close",
           	position: { my: "right bottom", at: "right bottom", of: $('#mapdiv') },
-          	close:function(){
-          			$('#routeInfo').dialog('close');
-          		}
-          	
-          	
+          	buttons:{"Close":function(){
+                	if(highlightFeature)
+                	{
+                		highlightFeature.setStyle(oldhighlightedStyle);
+                		highlightFeature = null;
+                	}
+          			$('#segInfo').dialog('close');
+          		}}
           });
             
             	$scope.validateCalc = function(){
@@ -338,16 +391,28 @@
             
             $scope.clearStations = function()
             {
-        		for(var index =1;index<scope.nodeNames.length-1;index++)
-    			{
-    				
-    				$scope.nodeNames[index].visible=false;
-    				document.getElementById($scope.nodeNames[index].id).value = '';
-    			}
-        		document.getElementById(scope.nodeNames[0].id).value = '';
-        		document.getElementById(scope.nodeNames[4].id).value = '';
         		vectorSrc.clear();
-        		$scope.$apply();
+        		for(var index =0;index<scope.nodeNames.length;index++)
+    			{
+        			document.getElementById(scope.nodeNames[index].id).value = '';
+    				scope.nodeNames[index].placeid = null;
+    				if(index>0 && index <6)
+    				{
+    					scope.nodeNames[index].visible=false;
+    				}
+    			}
+            }
+            
+            $scope.closeStation = function(currentNode,ind){            	
+            	if(currentNode.placeid)
+            	{
+            		vectorSrc.removeFeature(vectorSrc.getFeatureById(currentNode.placeid));
+            		if(vectorSrc.getFeatures().length > 1)
+            			view.fitExtent(vectorLayer.getSource().getExtent(),map.getSize());
+            	}
+               	currentNode.visible = false;
+               	currentNode.placeid = null;
+            	document.getElementById(currentNode.id).value = '';
             }
             
             var formstate = true;
@@ -374,17 +439,25 @@
         		}
         	}
         	
-        	
         	var infoDivState = false;
-        	
         	$scope.toggleInfoDiv = function(){
-        		var horizontalDiv = $('#InfoDiv');
+        		var InfoDiv = $('#InfoDiv');
         		var mapdiv = $('#mapdiv');
     			var dirIcon = $('#hdirectionIcon');
-    			horizontalDiv.hide();
+    			if(infoDivState){
+    					mapdiv.addClass('map-up',500,updatemap);
+    					dirIcon.removeClass().addClass('glyphicon glyphicon-menu-down');
+    			}
+    			else{
+    				mapdiv.removeClass('map-up',500,updatemap);
+					dirIcon.removeClass().addClass('glyphicon glyphicon-menu-up');
+    			}
+    			InfoDiv.toggle('slide',{},500);
+    			infoDivState = !infoDivState;
+    			function updatemap(){
+    				map.updateSize();
+    			}
     			//horizontalDiv.css('margin-bottom',-$(this).width());
-    			
-        		
         	}
         	$scope.toggleInfoDiv();
         	
@@ -411,14 +484,29 @@
            
               var autocomplete = new google.maps.places.Autocomplete(input,options);
               
-             google.maps.event.addListener(autocomplete, 'place_changed', function() {
+             google.maps.event.addListener(autocomplete, 'place_changed', function(a,b) {
+            	
                 var place = autocomplete.getPlace();
                 if (!place.geometry) {
                   return;
-                }           	
+                }   
+                
+                var ind;
+                for (ind = 0; ind < nodes.length; ind++)
+                {
+           		 	if(nodes[ind] == autocomplete)
+           		 		break;
+           		 }
+                
                 	var newStation = new ol.Feature();
                 	newStation.setStyle(iconStyle);
+                	newStation.setId(place.place_id);
                 	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857')));
+                	if(ind < nodes.length && scope.nodeNames[ind].placeid)
+                    {
+                    	vectorSrc.removeFeature(vectorSrc.getFeatureById(scope.nodeNames[ind].placeid));
+                    }
+                	scope.nodeNames[ind].placeid = place.place_id;
                 	vectorSrc.addFeature(newStation);
                 	if(vectorSrc.getFeatures().length > 1)
                 		view.fitExtent(vectorLayer.getSource().getExtent(),map.getSize());
@@ -431,12 +519,13 @@
             } // End of InitSearch
 
             angular.element(document).ready(function(){
+            	map.updateSize();
             	for(var index =0;index<$scope.nodeNames.length;index++){
                 	nodes.push(initSearch($scope.nodeNames[index].id));	
                 }	
             });
             
-            console.log($scope.routeInfo);
+           // console.log($scope.routeInfo);
             
             
             

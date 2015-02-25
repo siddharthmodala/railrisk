@@ -18,7 +18,7 @@
 <body ng-controller="RouteRiskController">
 	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 		<div class="container-fluid">
-			<div class="navbar-header" style="float: none";>
+			<div class="navbar-header" style="float: none">
 				<button type="button" class="navbar-toggle collapsed"
 					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
 					aria-controls="navbar">
@@ -36,7 +36,7 @@
 					</ul>
 					<a class="navbar-brand"
 						style="padding: 0px; padding-top: 0.7%; padding-left: 12%; font-size: 26px;">
-						Crude Oil by Rail Risk Assessment(CBR-Risk)</a>
+						Crude Oil by Rail Risk Assessment (CBR-Risk&#0153;)</a>
 				</div>
 			</div>
 			<div id="navbar" class="navbar-collapse collapse"></div>
@@ -55,10 +55,14 @@
 						<div class="form-group" ng-repeat="node in nodeNames"
 							ng-show="node.visible">
 							<label for="{{node.displayName}}" class="col-sm-4">{{node.displayName}}</label>
-							<div class="col-sm-8">
+							<div class="col-sm-8 input-group">
 								<input id="{{node.id}}"
-									class="controls address-input animate-show" type="text"
+									class="form-control" type="text"
 									placeholder="Enter a location">
+								<div class="input-group-btn" ng-show="node.showcross">
+								<button class="btn btn-warning" ng-click="closeStation(node,$index)" type="button">X</button>
+								</div> 
+<!-- 								controls address-input animate-show -->
 							</div>
 						</div>
 					</fieldset>
@@ -82,7 +86,7 @@
 							<label for="annualTrainUnits" class="col-sm-6">Annual
 								number of crude oil unit trains</label>
 							<div class="col-sm-6">
-								<input type="text" class="controls address-input"
+								<input type="text" class="form-control"
 									id="annualTrainUnits" ng-model="annualTrainUnits"
 									placeholder="Annual number of crude oil unit trains...">
 							</div>
@@ -91,7 +95,7 @@
 							<label for="noOfCars" class="col-sm-6">Number of tank
 								cars per unit train</label>
 							<div class="col-sm-6">
-								<input type="text" class="controls address-input" id="noOfCars"
+								<input type="text" class="form-control" id="noOfCars"
 									ng-model="noOfCars" placeholder="No of cars...">
 							</div>
 						</div>
@@ -99,7 +103,7 @@
 							<label for="trainspeed" class="col-sm-6">Train speed
 								(mph)</label>
 							<div class="col-sm-6">
-								<input type="text" class="controls address-input"
+								<input type="text" class="form-control"
 									id="trainspeed" ng-model="trainSpeed"
 									placeholder="Train speed...">
 							</div>
@@ -107,7 +111,7 @@
 						<div class="form-group">
 							<label for="cardesign" class="col-sm-6">Tank car design</label>
 							<div class="col-sm-6">
-								<select class="controls address-input" id="cardesign"
+								<select class="form-control" id="cardesign"
 									name="cardesign" ng-model="tankCarDesign"
 									ng-options="c.name for c in tankCarDesigns"
 									placeholder="Tank Car Design..">
@@ -119,7 +123,7 @@
 					<button type="button" class="btn btn-success"
 						ng-click="calculateRisk()">Calculate Total Risk</button>
 					<button type="button" class="btn btn-primary"
-						ng-click="clearRoute()">Clear All</button>
+						ng-click="clearAll()">Clear All</button>
 				</form>
 
 				<div id="footer1">
@@ -136,33 +140,57 @@
 							style="position: relative; top: 50%; left: 20%"
 							aria-hidden="true"></span>
 					</div>
-					<div class="map-wrapper">
+					<div class="map-wrapper map-wrapper-route">
 						<div id=map></div>
+					</div>
+					<div class="hsplitbar " unselectable="on"
+						ng-click="toggleInfoDiv()">
+						<b style="position: relative; top: 2%;">Segment Specific Risk
+							Information</b> <span id="hdirectionIcon"
+							class="glyphicon glyphicon-menu-up"
+							style="position: relative; top: 20%;" aria-hidden="true"></span>
+					</div>
+					<div class="row info" id="InfoDiv">
+						<table class="table table-bordered fontupdate">
+							<thead>
+								<tr>
+									<td>Fraarcid</td>
+									<td>State</td>
+									<td>Signal</td>
+									<td>Sub-Division</td>
+									<td>Track Owner</td>
+									<td>Segment Milage</td>
+									<td>Population Density/Mile</td>
+									<td>Annual Segment Risk</td>
+									<td>Interval Between Years</td>
+								</tr>
+							</thead>
+							<tbody id="routeInfoBody">
+
+							</tbody>
+						</table>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div id="routeInfo" title="Annual Route Risk Info">
-			<div class="row">
+		<div id="segInfo" title="Segment Risk Info">
+				<div class="row">
 				<div class="col-md-12">
 					<table class="table table-bordered fontupdate">
-						<thead>
+						<tbody>
 							<tr>
-								<td>Fraarcid</td>
-								<td>Length</td>
-								<td>Derailment Rate</td>
-								<td>Consequence</td>
-								<td>Segment Risk</td>
+								<td><b>Annual release risk </br>(number of affected persons)
+								</b></td>
+								<td style="width: 65px;"><b><span id="segriskcontent"></span></b></td>
 							</tr>
-						</thead>
-						<tbody id="routeInfoBody">
-<!-- 													<tr ng-repeat="data in nodeNames"> -->
-<!-- 														<td>{{data.displayName}}</td> -->
-<!-- 														<td>{{data.p.miles}}</td> -->
-<!-- 														<td>{{data.p.derailmentrate}}</td> -->
-<!-- 														<td>{{data.p.consequence}}</td> -->
-<!-- 														<td>{{data.p.segmentrisk}}</td> -->
-<!-- 							</tr> -->
+							<tr>
+								<td><b>Interval (years) between release incidents</b></td>
+								<td style="width: 65px;"><b><span id="segintervalcontent"></span></b></td>
+							</tr>
+							<tr>
+								<td><b>Segment miles</b></td>
+								<td style="width: 65px;"><b><span id="segmentlength"></span></b></td>
+							</tr>
 						</tbody>
 					</table>
 				</div>
@@ -186,7 +214,7 @@
 							<td style="width: 65px;"><b><span id="intervalcontent"></span></b></td>
 						</tr>
 						<tr>
-							<td><b>Segment miles</b></td>
+							<td><b>Route miles</b></td>
 							<td style="width: 65px;"><b><span id="routeLength"></span></b></td>
 						</tr>
 					</tbody>
@@ -242,7 +270,7 @@
 	<script src="js/jquery-ui.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/doc.min.js"></script>
-	<script src="js/ol.js"></script>
+	<script src="js/ol-beta.js"></script>
 	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 	<script src="js/ie10-viewport-bug-workaround.js"></script>
 	<script type="text/javascript" src="js/angular.min.js"></script>

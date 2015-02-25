@@ -93,7 +93,7 @@
             		      }),
             		      stroke: new ol.style.Stroke({
             		        color: '#FFFF00',
-            		        width: 4
+            		        width: 8
             		      })
             		    })
             	});
@@ -128,7 +128,7 @@
             	map.addControl(new ol.control.ZoomSlider());
             	map.on('click', function(evt) {
             		  var coordinate = evt.coordinate;
-            		  
+            
             		  var viewResolution = /** @type {number} */ (view.getResolution());
             		  var url = tracks.getSource().getGetFeatureInfoUrl(
             		      evt.coordinate, viewResolution, 'EPSG:3857',
@@ -145,10 +145,10 @@
             	                var P = scope.tankCarDesign.value * scope.trainSpeed / 26;
             	                var Z = parseFloat(data.features[0].properties.derailmentrate);
             	                scope.risk = Z * L * (1 - Math.pow((1 - P), D))*C;
-            	                scope.releaseInterval = scope.risk * scope.annualTrainUnits;
+            	                scope.releaseInterval = C/(scope.risk * scope.annualTrainUnits);
 
             	                document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
-            	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toExponential(2);
+            	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toFixed(2);
             	                document.getElementById('segmentlength').innerHTML =parseFloat(scope.segmentLength).toFixed(1);
             	                var dist =0;
             	                if(nodes[0].getPlace() != null)
@@ -165,7 +165,8 @@
             	                		
             	                	}
             	                console.log(dist);
-            	                document.getElementById('evacuationRequired').innerHTML = dist < 8046.72 ? "Yes":"No"; // if with in 5 miles radius
+            	                
+            	                document.getElementById('evacuationRequired').innerHTML = (dist >0 && dist < 804.67 )? "Yes":"No"; // if with in 5 miles radius
             	                $('#dialog').dialog('open');
             	        		var vectorfeatures = new ol.format.GeoJSON().readFeatures(data.features[0],{'featureProjection':'EPSG:3857'});
             	        			vectorSource.clear();
@@ -184,8 +185,8 @@
 	                	buttons:{
 	                		"Close":function(){
 	                			vectorSource.clear();
-	                    		searchSrc.clear();
-	                    		document.getElementById('searchloc').value = '';
+	                    		//searchSrc.clear();
+	                    		//document.getElementById('searchloc').value = '';
 	                    		$(this).dialog('close');
 	                		}
 	                	}
