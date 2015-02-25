@@ -192,7 +192,7 @@
         		tracks.setOpacity(0.99);
         		document.getElementById('routeInfoBody').innerHTML ='';
         		callCount =0;
-        		scope.$apply();
+        		//scope.$apply();
         		return false;
         	}
         	
@@ -224,6 +224,7 @@
 	                document.getElementById('segmentlength').innerHTML =parseFloat(feature.j.miles).toFixed(1);
 	                $('#segInfo').dialog('open');
             	}
+            	map.updateSize();
             });
                      
             $scope.calculateRisk = function(){
@@ -428,7 +429,7 @@
         			dirIcon.removeClass().addClass('glyphicon glyphicon-forward');
            		}
         		else{
-        			mapdiv.removeClass().addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3',500,updatemap);
+        			mapdiv.removeClass('col-sm-12 col-md-12').addClass('col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3',500,updatemap);
         			dirIcon.removeClass().addClass('glyphicon glyphicon-backward');			
         		}
         		formdiv.toggle('slide',{},500);
