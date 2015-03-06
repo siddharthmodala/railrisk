@@ -148,7 +148,7 @@
             	                scope.releaseInterval = C/(scope.risk * scope.annualTrainUnits);
 
             	                document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
-            	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toFixed(2);
+            	                document.getElementById('intervalcontent').innerHTML = numberWithCommas(parseFloat(scope.releaseInterval).toFixed(1));
             	                document.getElementById('segmentlength').innerHTML =parseFloat(scope.segmentLength).toFixed(1);
             	                var dist =0;
             	                if(nodes[0].getPlace() != null)
@@ -177,7 +177,11 @@
             		  });           		  
             		});
             	
-           	
+            	function numberWithCommas(x) {
+            	    var parts = x.toString().split(".");
+            	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            	    return parts.join(".");
+            	}
             	 $('#dialog').dialog({
             		 	autoOpen: false,
 	                	dialogClass: "no-close",

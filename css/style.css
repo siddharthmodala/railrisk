@@ -251,3 +251,13 @@ background: #1995dc !important;
 	
 	bottom:125px !important;
 }
+
+#routeInfoBody{
+	cursor: pointer;
+}
+
+.gridStyle {
+    border: 1px solid rgb(212,212,212);
+    width: auto; 
+    height:145px;
+}

@@ -10,6 +10,7 @@
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom styles for this template -->
 <link href="css/jquery-ui.min.css" rel="stylesheet">
+<link href="css/ng-grid.css" rel="stylesheet">
 <link href="css/dashboard.css" rel="stylesheet">
 <link rel="stylesheet" href="css/ol.css" type="text/css">
 <link href="css/style.css" rel="stylesheet">
@@ -36,7 +37,7 @@
 					</ul>
 					<a class="navbar-brand"
 						style="padding: 0px; padding-top: 0.7%; padding-left: 12%; font-size: 26px;">
-						Crude Oil by Rail Risk Assessment (CBR-Risk&#0153;)</a>
+						Crude Oil by Rail Risk Assessment (CBR-Risk)</a> <!-- &#0153;  -->
 				</div>
 			</div>
 			<div id="navbar" class="navbar-collapse collapse"></div>
@@ -152,24 +153,36 @@
 							style="position: relative; top: 20%;" aria-hidden="true"></span>
 					</div>
 					<div class="row info" id="InfoDiv">
-						<table class="table table-bordered fontupdate">
-							<thead>
-								<tr>
-									<td>Fraarcid</td>
-									<td>State</td>
-									<td>Signal</td>
-									<td>Sub-Division</td>
-									<td>Track Owner</td>
-									<td>Segment Milage</td>
-									<td>Population Density/Mile</td>
-									<td>Annual Segment Risk</td>
-									<td>Interval Between Years</td>
-								</tr>
-							</thead>
-							<tbody id="routeInfoBody">
+<!-- 						<table class="table table-bordered fontupdate"> -->
+<!-- 							<thead> -->
+<!-- 								<tr> -->
+<!-- 									<td>FRAARCID</td> -->
+<!-- 									<td>State</td> -->
+<!-- 									<td>Signal</td> -->
+<!-- 									<td>Sub-Division</td> -->
+<!-- 									<td>Track Owner</td> -->
+<!-- 									<td>Segment Milage</td> -->
+<!-- 									<td>Population Density per Sq.Mile</td> -->
+<!-- 									<td>Annual Segment Risk</td> -->
+<!-- 									<td>Interval Between Years</td> -->
+<!-- 								</tr> -->
+<!-- 							</thead> -->
+<!-- 							<tbody id="routeInfoBody"> -->
+<!-- 								<tr ng-repeat="data in routeInfo" ng-click="routeInfoClick($index)"> -->
+<!-- 									<td>{{data.fraarcid}}</td> -->
+<!-- 									<td>{{data.stateab}}</td> -->
+<!-- 									<td>{{data.sigsys}}</td> -->
+<!-- 									<td>{{data.subdiv}}</td> -->
+<!-- 									<td>{{data.rrowner}}</td> -->
+<!-- 									<td>{{data.miles}}</td> -->
+<!-- 									<td>{{data.densitypermile}}</td> -->
+<!-- 									<td>{{data.segmentrisk}}</td> -->
+<!-- 									<td>{{data.releaseInterval}}</td> -->
+<!-- 								</tr> -->
+<!-- 							</tbody> -->
+<!-- 						</table> -->
 
-							</tbody>
-						</table>
+					<div class="gridStyle" ng-grid="gridOptions"></div>
 					</div>
 				</div>
 			</div>
@@ -182,15 +195,15 @@
 							<tr>
 								<td><b>Annual release risk </br>(number of affected persons)
 								</b></td>
-								<td style="width: 65px;"><b><span id="segriskcontent"></span></b></td>
+								<td style="width: 85px;"><b><span id="segriskcontent"></span></b></td>
 							</tr>
 							<tr>
 								<td><b>Interval (years) between release incidents</b></td>
-								<td style="width: 65px;"><b><span id="segintervalcontent"></span></b></td>
+								<td style="width: 85px;"><b><span id="segintervalcontent"></span></b></td>
 							</tr>
 							<tr>
 								<td><b>Segment miles</b></td>
-								<td style="width: 65px;"><b><span id="segmentlength"></span></b></td>
+								<td style="width: 85px;"><b><span id="segmentlength"></span></b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -206,20 +219,28 @@
 				<table class="table table-bordered fontupdate">
 					<tbody>
 						<tr>
-							<td><b>Annual release risk </br>(number of affected persons)
+							<td style="width: 215px;"><b>Annual release risk </br>(number of affected persons)
 							</b></td>
-							<td style="width: 65px;"><b><span id="riskcontent"></span></b></td>
+							<td style="width: 85px;"><b><span id="riskcontent"></span></b></td>
 						</tr>
 						<tr>
-							<td><b>Interval (years) between release incidents</b></td>
-							<td style="width: 65px;"><b><span id="intervalcontent"></span></b></td>
+							<td style="width: 215px;"><b>Interval (years) between release incidents</b></td>
+							<td style="width: 85px;"><b><span id="intervalcontent"></span></b></td>
 						</tr>
 						<tr>
-							<td><b>Route miles</b></td>
-							<td style="width: 65px;"><b><span id="routeLength"></span></b></td>
+							<td style="width: 215px;"><b>Route miles</b></td>
+							<td style="width: 85px;"><b><span id="routeLength"></span></b></td>
 						</tr>
+						
+						<tr>
+						<td colspan="2">				<b>
+					Segments in <span style="color:red">Red</span> accounts for 80% of risk. <span style="color:red">-----</span> High Risk Location
+					</b></td>
+						</tr>
+						
 					</tbody>
 				</table>
+	
 			</div>
 
 		</div>
@@ -275,6 +296,7 @@
 	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 	<script src="js/ie10-viewport-bug-workaround.js"></script>
 	<script type="text/javascript" src="js/angular.min.js"></script>
+	<script type="text/javascript" src="js/ng-grid.js"></script>
 	<script type="text/javascript" src="js/routerisk.js"></script>
 	<script
 		src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>

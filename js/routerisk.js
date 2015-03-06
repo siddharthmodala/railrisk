@@ -1,5 +1,5 @@
 (function() {
-    var app = angular.module('routerisk', []);
+    var app = angular.module('routerisk', ['ngGrid']);
 
     app.controller("RouteRiskController", ['$scope', '$http', function($scope, $http) {
 
@@ -18,14 +18,8 @@
         $scope.routeLength = 0;
         $scope.routeData = null;
         $scope.showloader = false;
-        $scope.routeInfo = [{p:{
-        	consequence:'123',
-        	miles:'123',
-        	derailmentrate:'233',
-        	fraarcid:'323',
-        	segmentrisk:'0.23'
-        }}
-        ];
+        $scope.routeInfo = [];
+
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true,showcross:false,placeid:null},
                           {displayName:'En-route Station 1',id:'onRoute1',visible:false,showcross:true,placeid:null},
                           {displayName:'En-route Station 2',id:'onRoute2',visible:false,showcross:true,placeid:null},
@@ -191,7 +185,8 @@
         		highlightFeature = null;
             	oldhighlightedStyle = null;
         		tracks.setOpacity(0.99);
-        		document.getElementById('routeInfoBody').innerHTML ='';
+        		$scope.routeInfo = [];
+        		//document.getElementById('routeInfoBody').innerHTML ='';
         		callCount =0;
         		scope.showloader = false;
         		//scope.$apply();
@@ -213,22 +208,82 @@
 
             	if(feature)
             	{
-                	if(highlightFeature)
-                	{
-                		highlightFeature.setStyle(oldhighlightedStyle);
-                		highlightFeature = null;
-                	}
-            		oldhighlightedStyle = feature.getStyle();
-            		highlightFeature = feature;
-            		feature.setStyle(blueStyle);
-	                document.getElementById('segriskcontent').innerHTML = parseFloat(feature.j.segmentrisk).toExponential(2);
-	                document.getElementById('segintervalcontent').innerHTML = parseFloat(feature.j.releaseInterval).toFixed(2);
-	                document.getElementById('segmentlength').innerHTML =parseFloat(feature.j.miles).toFixed(1);
-	                $('#segInfo').dialog('open');
+            		scope.openSegmentInfoDialog(feature);
+            		 angular.forEach($scope.routeInfo, function(data, index){
+            			 if(data.fraarcid  == feature.getProperties().fraarcid){
+            	                $scope.gridOptions.selectItem(index, true);
+            	            }
+            		 });
             	}
             	map.updateSize();
             });
-                     
+            
+            $scope.openSegmentInfoDialog = function(feature)
+            {
+            	if(highlightFeature)
+            	{
+            		highlightFeature.setStyle(oldhighlightedStyle);
+            		highlightFeature = null;
+            	}
+        		oldhighlightedStyle = feature.getStyle();
+        		highlightFeature = feature;
+        		feature.setStyle(blueStyle);
+                document.getElementById('segriskcontent').innerHTML = parseFloat(feature.j.segmentrisk).toExponential(2);
+                document.getElementById('segintervalcontent').innerHTML =numberWithCommas( parseFloat(feature.j.releaseInterval).toFixed(1));
+                document.getElementById('segmentlength').innerHTML =parseFloat(feature.j.miles).toFixed(1);
+                $('#segInfo').dialog('open');
+            }
+            
+            
+            $scope.routeInfoClick = function(index)
+            {
+            	featureList = routeSource.getFeatures();
+            	if(featureList)
+            	{
+            		for(var i =0; i<featureList.length; i++)
+            		{
+ 						if($scope.routeInfo[index].fraarcid == featureList[i].j.fraarcid)
+ 						{
+ 							$scope.openSegmentInfoDialog(featureList[i]);
+ 							return;
+ 						}           		
+            		}
+            	}
+            }
+            
+            $scope.selectionChange = function (rowItem) {
+	            if (rowItem.selected)  {  
+	            	featureList = routeSource.getFeatures();
+	            	if(featureList)
+	            	{
+	            		for(var i =0; i<featureList.length; i++)
+	            		{
+	 						if(rowItem.entity.fraarcid == featureList[i].j.fraarcid)
+	 						{
+	 							$scope.openSegmentInfoDialog(featureList[i]);
+	 							return;
+	 						}           		
+	            		}
+	            	}
+	            } 
+	        }
+            
+            $scope.gridOptions = { 
+    		        data: 'routeInfo',
+    		        multiSelect:false,
+    		        enableColumnResize:true,
+    				afterSelectionChange: $scope.selectionChange,
+            		columnDefs: [{field:'fraarcid', displayName:'FRAARCID'},
+            		{field:'stateab', displayName:'State'},
+            		{field:'sigsys', displayName:'Signal'},
+            		{field:'subdiv', displayName:'Sub-Division'},
+            		{field:'rrowner', displayName:'Track Owner'},
+            		{field:'miles', displayName:'Segment Milage'},
+            		{field:'densitypermile', displayName:'Population Density per Sq.Mile'},
+            		{field:'segmentrisk', displayName:'Annual Segment Risk'},
+            		{field:'releaseInterval', displayName:'Interval Between Years'}]
+            	};
+            
             $scope.calculateRisk = function(){
             	
             	if($scope.validateCalc())
@@ -294,7 +349,7 @@
     		        		    				scope.releaseInterval = 1/(scope.riskComp * scope.annualTrainUnits);
     		        		    				
 	    		                    			document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
-	    		            	                document.getElementById('intervalcontent').innerHTML = parseFloat(scope.releaseInterval).toFixed(2);//.toExponential(2);
+	    		            	                document.getElementById('intervalcontent').innerHTML = numberWithCommas(parseFloat(scope.releaseInterval).toFixed(1));//.toExponential(2);
 	    		            	                document.getElementById('routeLength').innerHTML =numberWithCommas(parseFloat(scope.routeLength).toFixed(1));
 	    		            	                $('#dialog').dialog('open');
 	    		            	                
@@ -310,6 +365,8 @@
 	    		        		    			var subRisk = scope.risk * 0.8;
 	    		        		    			var tempSum = 0;
 	    		        		    			var tempBody ='';
+	    		        		    			$scope.routeInfo  = [];
+	    		        		    			var tempInfoVar = {};
 	    		        		    			for(var i=0; i<geoData.length; i++)
 	    		        		    				{
 	    		        		    					if(tempSum < subRisk)
@@ -317,7 +374,17 @@
 	    		        		    							tempSum += geoData[i].j.segmentrisk;
 	    		        		    							geoData[i].setStyle(redStyle);
 	    		        		    						}
-	    		        		    					tempBody = tempBody +'<tr><td>'+geoData[i].j.fraarcid+'</td><td>'
+	    		        		    					tempInfoVar.fraarcid = geoData[i].j.fraarcid;
+	    		        		    					tempInfoVar.stateab = geoData[i].j.stateab;
+	    		        		    					tempInfoVar.sigsys = (geoData[i].j.sigsys?geoData[i].j.sigsys:'') ;
+	    		        		    					tempInfoVar.subdiv = (geoData[i].j.subdiv?geoData[i].j.subdiv:'');
+	    		        		    					tempInfoVar.rrowner = geoData[i].j.rrowner;
+	    		        		    					tempInfoVar.miles =parseFloat(geoData[i].j.miles).toFixed(1) ;
+	    		        		    					tempInfoVar.densitypermile = parseFloat(geoData[i].j.densitypermile).toFixed(1);
+	    		        		    					tempInfoVar.segmentrisk = parseFloat(geoData[i].j.segmentrisk).toExponential(2);
+	    		        		    					tempInfoVar.releaseInterval = numberWithCommas(parseFloat(geoData[i].j.releaseInterval).toFixed(1)) ;
+	    		        		    					
+	    		        		    					/*tempBody = tempBody +'<tr><td>'+geoData[i].j.fraarcid+'</td><td>'
 	    		        		    					+geoData[i].j.stateab+'</td><td>'
 	    		        		    					+(geoData[i].j.sigsys?geoData[i].j.sigsys:'') +'</td><td>'
 	    		        		    					+(geoData[i].j.subdiv?geoData[i].j.subdiv:'') +'</td><td>'
@@ -325,9 +392,11 @@
 	    		        		    					+parseFloat(geoData[i].j.miles).toFixed(1) +'</td><td>'
 	    		        		    					+parseFloat(geoData[i].j.densitypermile).toFixed(1)+'</td><td>'
 	    		        		    					+parseFloat(geoData[i].j.segmentrisk).toExponential(2)+'</td><td>'
-	    		        		    					+parseFloat(geoData[i].j.releaseInterval).toFixed(2) +'</td></tr>';
+	    		        		    					+numberWithCommas(parseFloat(geoData[i].j.releaseInterval).toFixed(1)) +'</td></tr>';*/
+	    		        		    					$scope.routeInfo.push(tempInfoVar);
+	    		        		    					tempInfoVar = {};
 	    		        		    				}
-	    		        		    			document.getElementById('routeInfoBody').innerHTML =tempBody;
+	    		        		    			//document.getElementById('routeInfoBody').innerHTML =tempBody;
 	    		        		    			//$('#routeInfo').dialog('open');
 	    		        		    			routeSource.addFeatures(geoData);
 	    		        		    			tracks.setOpacity(0.35);
@@ -346,9 +415,9 @@
  		 	autoOpen: false,
  		 	dialogClass:"dialog1 no-close",
          	position: { my: "left top", at: "left top", of: $('#mapdiv') },
-         	buttons:{
-        		"Close":closePopUP
-        	}
+          	buttons:{"Close":function(){
+      			$('#dialog').dialog('close');
+      		}}
          });
        	 
        	 $('#segInfo').dialog({
@@ -464,7 +533,7 @@
     			}
     			//horizontalDiv.css('margin-bottom',-$(this).width());
         	}
-        	$scope.toggleInfoDiv();
+        	
         	
         	function numberWithCommas(x) {
         	    var parts = x.toString().split(".");
@@ -527,7 +596,8 @@
             	map.updateSize();
             	for(var index =0;index<$scope.nodeNames.length;index++){
                 	nodes.push(initSearch($scope.nodeNames[index].id));	
-                }	
+                }
+            	$scope.toggleInfoDiv();
             });
             
            // console.log($scope.routeInfo);
