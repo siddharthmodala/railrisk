@@ -3,11 +3,11 @@
 
     app.controller("LocationRiskController", ['$scope', '$http', function($scope, $http) {
 
-            $scope.tankCarDesigns = [{name: 'Legacy DOT 111 (7/16 inch, no jacket)', value: 0.196},
-                                     {name: 'Legacy DOT 111 (7/16 inch, jacket)', value: 0.085},
-                                     {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103},
-                                     {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046},
-                                     {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037}];
+    	 $scope.tankCarDesigns = [{name: 'Legacy DOT 111 (7/16 inch, no jacket)', value: 0.196,carCount:0},
+                                  {name: 'Legacy DOT 111 (7/16 inch, jacket)', value: 0.085,carCount:0},
+                                  {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103,carCount:0},
+                                  {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046,carCount:0},
+                                  {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037,carCount:0}];
             $scope.noOfCars = 200;
             $scope.tankCarDesign = $scope.tankCarDesigns[0];
             $scope.trainSpeed = 45;
@@ -15,6 +15,8 @@
             $scope.risk = 0;
             $scope.releaseInterval =0 
             $scope.segmentLength = 0;
+            $scope.tankCarDesignSplit = false;
+            $scope.minimizetankCarDesignSplit = false;
             var scope = $scope;
             var http = $http;
             var nodes = [];
@@ -141,8 +143,22 @@
             	        	    var L = parseFloat(data.features[0].properties.miles);
             	                scope.segmentLength = L;
             	                var C = parseFloat(data.features[0].properties.consequence);
-            	                var D = 0.1 * scope.noOfCars * scope.trainSpeed / 26;
-            	                var P = scope.tankCarDesign.value * scope.trainSpeed / 26;
+            	                var P=0;
+	    				 		var D=0;
+            	                if(scope.tankCarDesignSplit)
+		    					 {
+		    				 		 
+		    				 		 for(var ti = 0; ti< scope.tankCarDesigns.length; ti++)
+		    				 			 {
+		    				 			 	P += scope.tankCarDesigns[ti].value * scope.trainSpeed/26 * (parseFloat(scope.tankCarDesigns[ti].carCount)/scope.noOfCars);
+		    				 			 }
+		    				 		D = 0.09 * scope.noOfCars * scope.trainSpeed / 26;
+		    			 		 }
+		    				 	 else
+		    				 	 {
+		    				 		 P = scope.tankCarDesign.value * scope.trainSpeed / 26; // 26 is the avg train speed on any line
+		    				 		 D = 0.09 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
+		    				 	 }
             	                var Z = parseFloat(data.features[0].properties.derailmentrate);
             	                scope.risk = Z * L * (1 - Math.pow((1 - P), D))*C;
             	                scope.releaseInterval = C/(scope.risk * scope.annualTrainUnits);
@@ -222,7 +238,14 @@
             			map.updateSize();
             		}
             	}
+            	$scope.toggleCarDesign = function()
+            	{
+            		$scope.tankCarDesignSplit = !$scope.tankCarDesignSplit;
+            	};
             	
+            	$scope.minimizeCarDesignSplit  = function(){
+            		$scope.minimizetankCarDesignSplit = !$scope.minimizetankCarDesignSplit;
+            	}
             	var initSearch = function initialize(elementName)
                 {
 

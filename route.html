@@ -53,10 +53,10 @@
 						<legend class="scheduler-border">
 							<h4>Route</h4>
 						</legend>
-						<div class="form-group" ng-repeat="node in nodeNames"
+						<div class="form-group form-group-sm" ng-repeat="node in nodeNames"
 							ng-show="node.visible">
 							<label for="{{node.displayName}}" class="col-sm-4">{{node.displayName}}</label>
-							<div class="col-sm-8 input-group">
+							<div class="col-sm-8 input-group input-group-sm">
 								<input id="{{node.id}}"
 									class="form-control" type="text"
 									placeholder="Enter a location">
@@ -71,7 +71,7 @@
 						ng-click="addStation()" ng-disabled="showloader">Add En-route station</button>
 					<button type="button" class="btn btn-primary"
 						ng-click="clearStations()" ng-disabled="showloader">Clear</button>
-					<!-- <div class="form-group">
+					<!-- <div class="form-group form-group-sm">
 						<label for="deststation">Destination</label>
 						<div>
 							<input id="destination" class="controls address-input" type="text" placeholder="Enter a location">
@@ -83,7 +83,7 @@
 						<legend class="scheduler-border">
 							<h4>Train</h4>
 						</legend>
-						<div class="form-group">
+						<div class="form-group form-group-sm">
 							<label for="annualTrainUnits" class="col-sm-6">Annual
 								number of crude oil unit trains</label>
 							<div class="col-sm-6">
@@ -92,7 +92,7 @@
 									placeholder="Annual number of crude oil unit trains...">
 							</div>
 						</div>
-						<div class="form-group">
+						<div class="form-group form-group-sm">
 							<label for="noOfCars" class="col-sm-6">Number of tank
 								cars per unit train</label>
 							<div class="col-sm-6">
@@ -100,7 +100,7 @@
 									ng-model="noOfCars" placeholder="No of cars...">
 							</div>
 						</div>
-						<div class="form-group">
+						<div class="form-group form-group-sm">
 							<label for="trainspeed" class="col-sm-6">Train speed
 								(mph)</label>
 							<div class="col-sm-6">
@@ -109,17 +109,43 @@
 									placeholder="Train speed...">
 							</div>
 						</div>
-						<div class="form-group">
+						<div class="form-group form-group-sm" ng-hide="tankCarDesignSplit">
 							<label for="cardesign" class="col-sm-6">Tank car design</label>
-							<div class="col-sm-6">
+							
+								<div class="col-sm-6 input-group input-group-sm">
 								<select class="form-control" id="cardesign"
 									name="cardesign" ng-model="tankCarDesign"
 									ng-options="c.name for c in tankCarDesigns"
 									placeholder="Tank Car Design..">
 								</select>
+								<div class="input-group-btn" >
+								<button class="btn btn-success" ng-click="toggleCarDesign()" type="button">
+								<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+								</button>
+								</div> 
 							</div>
+							
 
 						</div>
+						<fieldset class="scheduler-border"
+						style="margin-top: 20px !important" ng-show="tankCarDesignSplit">
+						<legend class="scheduler-border">
+							<h4>Tank car design split</h4>
+						</legend>
+						<div class="form-group form-group-sm"  ng-repeat="c in tankCarDesigns" ng-hide="minimizetankCarDesignSplit">
+							<label for="tankdesign" class="col-sm-6">{{c.name}}</label>
+							<div class="col-sm-6">
+								<input type="text" class="form-control"
+									id="traindesign{{$index}}" ng-model="c.carCount"
+									placeholder="TrainCount">
+							</div>
+						</div>
+						<button type="button" class="btn btn-primary btn-sm"
+						ng-click="minimizeCarDesignSplit()" ng-disabled="showloader">{{minimizetankCarDesignSplit ? 'Maximize':'Minimize'}}</button>
+						<button type="button" class="btn btn-primary btn-sm"
+						ng-click="toggleCarDesign()" ng-disabled="showloader">Cancel</button>
+						</fieldset>
+						
 					</fieldset>
 					<button type="button" class="btn btn-success"
 						ng-click="calculateRisk()" ng-disabled="showloader">Calculate Total Risk</button>
@@ -130,7 +156,7 @@
 
 				<div id="footer1">
 					<img src="js/img/Rutgers_logotype.gif"
-						style="z-index: -10000; display: inline-block; width: inherit; height: 10%; padding: 0px"
+						style="z-index: -10000; display: inline-block; width: inherit; height: 20%; padding: 0px"
 						alt="" />
 				</div>
 			</div>

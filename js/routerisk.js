@@ -3,11 +3,11 @@
 
     app.controller("RouteRiskController", ['$scope', '$http', function($scope, $http) {
 
-        $scope.tankCarDesigns = [{name: 'Legacy DOT 111 (7/16 inch, no jacket)', value: 0.196},
-                                 {name: 'Legacy DOT 111 (7/16 inch, jacket)', value: 0.085},
-                                 {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103},
-                                 {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046},
-                                 {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037}];
+        $scope.tankCarDesigns = [{name: 'Legacy DOT 111 (7/16 inch, no jacket)', value: 0.196,carCount:0},
+                                 {name: 'Legacy DOT 111 (7/16 inch, jacket)', value: 0.085,carCount:0},
+                                 {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103,carCount:0},
+                                 {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046,carCount:0},
+                                 {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037,carCount:0}];
         $scope.noOfCars = 200;
         $scope.tankCarDesign = $scope.tankCarDesigns[0];
         $scope.trainSpeed = 45;
@@ -19,6 +19,8 @@
         $scope.routeData = null;
         $scope.showloader = false;
         $scope.routeInfo = [];
+        $scope.tankCarDesignSplit = false;
+        $scope.minimizetankCarDesignSplit = false;
 
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true,showcross:false,placeid:null},
                           {displayName:'En-route Station 1',id:'onRoute1',visible:false,showcross:true,placeid:null},
@@ -196,6 +198,12 @@
             $scope.clearAll= function(){
             	closePopUP();
             	$scope.clearStations();
+        		$scope.tankCarDesignSplit = false;
+        		$scope.minimizetankCarDesignSplit = false;
+        		for(var i =0 ; i < $scope.tankCarDesigns.length; i++)
+        			{
+        				$scope.tankCarDesigns[i].carCount = 0;
+        			}
             };
             
             map.on('singleclick',function(evt){
@@ -321,8 +329,22 @@
     		        		    				 	 L = parseFloat(data.features[i].properties.miles);
     		        		    				 	 Z = parseFloat(data.features[i].properties.derailmentrate);
     		        		    				 	 C = parseFloat(data.features[i].properties.consequence);
-    		        		    				 	 P = scope.tankCarDesign.value * scope.trainSpeed / 26; // 26 is the avg train speed on any line
-    		        		    				 	 D = 0.1 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
+    		        		    				 	 if(scope.tankCarDesignSplit)
+    		        		    					 {
+    		        		    				 		 P=0;
+    		        		    				 		 D=0;
+    		        		    				 		 for(var ti = 0; ti< scope.tankCarDesigns.length; ti++)
+    		        		    				 			 {
+    		        		    				 			 	P += scope.tankCarDesigns[ti].value * scope.trainSpeed/26 * (parseFloat(scope.tankCarDesigns[ti].carCount)/scope.noOfCars);
+    		        		    				 			 }
+    		        		    				 		D = 0.09 * scope.noOfCars * scope.trainSpeed / 26;
+    		        		    			 		 }
+    		        		    				 	 else
+    		        		    				 	 {
+    		        		    				 		 P = scope.tankCarDesign.value * scope.trainSpeed / 26; // 26 is the avg train speed on any line
+    		        		    				 		 D = 0.09 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
+    		        		    				 	 }
+    		        		    				 	 
     		        		    				 	subsegrisk = Z * L * (1 - Math.pow((1 - P), D)) ;
     		        		    				 	data.features[i].properties.segmentrisk = subsegrisk *C;
     		        		    				 	data.features[i].properties.releaseInterval= 1/(subsegrisk * scope.annualTrainUnits);
@@ -448,6 +470,18 @@
             			alert('Please enter values in all fields');
             			return false;
             		}
+            	if($scope.tankCarDesignSplit){
+            		var sum =0;
+            		for(var i =0 ; i < $scope.tankCarDesigns.length; i++)
+        			{
+        				sum += parseInt(scope.tankCarDesigns[i].carCount);
+        			}
+            		if (sum != $scope.noOfCars)
+            			{
+            			alert('Total number of cars in Tank car design split should be equal to number of cars per unit train .');
+            			return false;
+            			}
+            	}
             	return true;
             	
             }
@@ -534,7 +568,14 @@
     			//horizontalDiv.css('margin-bottom',-$(this).width());
         	}
         	
+        	$scope.toggleCarDesign = function()
+        	{
+        		$scope.tankCarDesignSplit = !$scope.tankCarDesignSplit;
+        	};
         	
+        	$scope.minimizeCarDesignSplit  = function(){
+        		$scope.minimizetankCarDesignSplit = !$scope.minimizetankCarDesignSplit;
+        	}
         	function numberWithCommas(x) {
         	    var parts = x.toString().split(".");
         	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
