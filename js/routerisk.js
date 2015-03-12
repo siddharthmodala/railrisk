@@ -337,14 +337,12 @@
     		        		    				 			 {
     		        		    				 			 	P += scope.tankCarDesigns[ti].value * scope.trainSpeed/26 * (parseFloat(scope.tankCarDesigns[ti].carCount)/scope.noOfCars);
     		        		    				 			 }
-    		        		    				 		D = 0.09 * scope.noOfCars * scope.trainSpeed / 26;
     		        		    			 		 }
     		        		    				 	 else
     		        		    				 	 {
     		        		    				 		 P = scope.tankCarDesign.value * scope.trainSpeed / 26; // 26 is the avg train speed on any line
-    		        		    				 		 D = 0.09 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
     		        		    				 	 }
-    		        		    				 	 
+    		        		    				 	D = 0.09 * scope.noOfCars * scope.trainSpeed / 26;  // 0.09 is to accomodate 9% OF THE cars derailed
     		        		    				 	subsegrisk = Z * L * (1 - Math.pow((1 - P), D)) ;
     		        		    				 	data.features[i].properties.segmentrisk = subsegrisk *C;
     		        		    				 	data.features[i].properties.releaseInterval= 1/(subsegrisk * scope.annualTrainUnits);

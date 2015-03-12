@@ -144,7 +144,7 @@
             	                scope.segmentLength = L;
             	                var C = parseFloat(data.features[0].properties.consequence);
             	                var P=0;
-	    				 		var D=0;
+	    				 		
             	                if(scope.tankCarDesignSplit)
 		    					 {
 		    				 		 
@@ -152,13 +152,13 @@
 		    				 			 {
 		    				 			 	P += scope.tankCarDesigns[ti].value * scope.trainSpeed/26 * (parseFloat(scope.tankCarDesigns[ti].carCount)/scope.noOfCars);
 		    				 			 }
-		    				 		D = 0.09 * scope.noOfCars * scope.trainSpeed / 26;
 		    			 		 }
 		    				 	 else
 		    				 	 {
 		    				 		 P = scope.tankCarDesign.value * scope.trainSpeed / 26; // 26 is the avg train speed on any line
-		    				 		 D = 0.09 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
+		    				 		 
 		    				 	 }
+            	                var D = 0.09 * scope.noOfCars * scope.trainSpeed / 26; // 0.1 is to accomodate 10% OF THE cars derailed
             	                var Z = parseFloat(data.features[0].properties.derailmentrate);
             	                scope.risk = Z * L * (1 - Math.pow((1 - P), D))*C;
             	                scope.releaseInterval = C/(scope.risk * scope.annualTrainUnits);
