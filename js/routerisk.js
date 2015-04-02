@@ -8,10 +8,10 @@
                                  {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103,carCount:0},
                                  {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046,carCount:0},
                                  {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037,carCount:0}];
-        $scope.noOfCars = 200;
+        $scope.noOfCars = 100;
         $scope.tankCarDesign = $scope.tankCarDesigns[0];
-        $scope.trainSpeed = 45;
-        $scope.annualTrainUnits = 20;
+        $scope.trainSpeed = 40;
+        $scope.annualTrainUnits = 500;
         $scope.risk = 0;
         $scope.riskComp = 0; // with out consequence component used in calc. release interval.
         $scope.releaseInterval =0
@@ -281,15 +281,15 @@
     		        multiSelect:false,
     		        enableColumnResize:true,
     				afterSelectionChange: $scope.selectionChange,
-            		columnDefs: [{field:'fraarcid', displayName:'FRAARCID'},
-            		{field:'stateab', displayName:'State'},
-            		{field:'sigsys', displayName:'Signal'},
-            		{field:'subdiv', displayName:'Sub-Division'},
-            		{field:'rrowner', displayName:'Track Owner'},
-            		{field:'miles', displayName:'Segment Milage'},
-            		{field:'densitypermile', displayName:'Population Density per Sq.Mile'},
-            		{field:'segmentrisk', displayName:'Annual Segment Risk'},
-            		{field:'releaseInterval', displayName:'Interval Between Years'}]
+            		columnDefs: [{field:'fraarcid', displayName:'FRAARCID',width:85},
+            		{field:'stateab', displayName:'State',width:50},
+            		{field:'sigsys', displayName:'Signal',width:55},
+            		{field:'subdiv', displayName:'Sub-Division',width:100},
+            		{field:'rrowner', displayName:'Track Owner',width:105},
+            		{field:'miles', displayName:'Segment Milage',width:130},
+            		{field:'densitypermile', displayName:'Population Density per Sq.Mile',width:'*'},
+            		{field:'segmentrisk', displayName:'Annual Segment Risk',width:'*'},
+            		{field:'releaseInterval', displayName:'Interval Between Years',width:'*'}]
             	};
             
             $scope.calculateRisk = function(){

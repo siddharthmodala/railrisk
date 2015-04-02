@@ -8,15 +8,17 @@
                                   {name: 'CPC-1232 (7/16 inch, with jacket)', value: 0.103,carCount:0},
                                   {name: 'CPC-1232 (1/2 inch, no jacket)', value: 0.046,carCount:0},
                                   {name: 'CPC-1232 (1/2 inch, with jacket)', value: 0.037,carCount:0}];
-            $scope.noOfCars = 200;
+            $scope.noOfCars = 100;
             $scope.tankCarDesign = $scope.tankCarDesigns[0];
-            $scope.trainSpeed = 45;
-            $scope.annualTrainUnits = 20;
+            $scope.trainSpeed = 40;
+            $scope.annualTrainUnits = 500;
             $scope.risk = 0;
             $scope.releaseInterval =0 
             $scope.segmentLength = 0;
             $scope.tankCarDesignSplit = false;
             $scope.minimizetankCarDesignSplit = false;
+            $scope.evacZone = 0.5;
+            var dist =0;
             var scope = $scope;
             var http = $http;
             var nodes = [];
@@ -166,7 +168,7 @@
             	                document.getElementById('riskcontent').innerHTML = parseFloat(scope.risk).toExponential(2);
             	                document.getElementById('intervalcontent').innerHTML = numberWithCommas(parseFloat(scope.releaseInterval).toFixed(1));
             	                document.getElementById('segmentlength').innerHTML =parseFloat(scope.segmentLength).toFixed(1);
-            	                var dist =0;
+            	                dist =0;
             	                if(nodes[0].getPlace() != null)
             	                	{
             	                		var temppoint = [nodes[0].getPlace().geometry.location.D , nodes[0].getPlace().geometry.location.k];
@@ -180,9 +182,9 @@
             	                				dist = wgs84Sam.haversineDistance(temppoint, linepoint[i]);
             	                		
             	                	}
-            	                console.log(dist);
             	                
-            	                document.getElementById('evacuationRequired').innerHTML = (dist >0 && dist < 804.67 )? "Yes":"No"; // if with in 5 miles radius
+            	                
+            	                document.getElementById('evacuationRequired').innerHTML = (dist >0 && dist < (1609.34 * parseFloat($scope.evacZone)) )? "Yes":"No"; // if with in 5 miles radius
             	                $('#dialog').dialog('open');
             	        		var vectorfeatures = new ol.format.GeoJSON().readFeatures(data.features[0],{'featureProjection':'EPSG:3857'});
             	        			vectorSource.clear();
@@ -198,23 +200,21 @@
             	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	    return parts.join(".");
             	}
-            	 $('#dialog').dialog({
-            		 	autoOpen: false,
-	                	dialogClass: "no-close",
-	                	position: { my: "left top", at: "left top", of: $('#mapdiv') },
-	                	buttons:{
-	                		"Close":function(){
-	                			vectorSource.clear();
-	                    		//searchSrc.clear();
-	                    		//document.getElementById('searchloc').value = '';
-	                    		$(this).dialog('close');
-	                		}
-	                	}
-	                	
-	                });
+            	 
+            	$scope.updateEvacZone = function(){
+            		
+            		if(parseFloat($scope.evacZone))
+            		{
+            			if(nodes[0].getPlace() != null)
+            			{	
+            				document.getElementById('evacuationRequired').innerHTML = (dist >0 && dist < (1609.34 * parseFloat($scope.evacZone)) )? "Yes":"No"; // if with in 5 miles radius
+            				return;
+            			}
+            		}
+            		document.getElementById('evacuationRequired').innerHTML = 'No'
+            	};
             	
             	var formstate = true;
-            	
             	$scope.toggleDiv = function()
             	{
             		var formdiv = $('#formdiv');
@@ -276,13 +276,14 @@
                       //map.setCenter(place.geometry.location);
                       //map.setZoom(17);  // Why 17? Because it looks good.
                     	searchSrc.clear();
+                    	dist =0;
                     	var newStation = new ol.Feature();
                     	newStation.setStyle(iconStyle);
                     	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857')));
                     	searchSrc.addFeature(newStation);
                    		view.setCenter(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857'));
                    		view.setZoom(12);
-
+                   	 map.updateSize();
                    /* }*/
                     /*var address = '';
                     if (place.address_components) {
@@ -301,7 +302,20 @@
 
                 angular.element(document).ready(function(){
                     	nodes.push(initSearch("searchloc"));	
-                    
+                    	$('#dialog').dialog({
+                		 	autoOpen: false,
+    	                	dialogClass: "no-close",
+    	                	position: { my: "left top", at: "left top", of: $('#mapdiv') },
+    	                	buttons:{
+    	                		"Close":function(){
+    	                			vectorSource.clear();
+    	                    		//searchSrc.clear();
+    	                    		//document.getElementById('searchloc').value = '';
+    	                    		$(this).dialog('close');
+    	                		}
+    	                	}
+    	                	
+    	                });
                 });
             	
                 map.updateSize();
