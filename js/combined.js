@@ -19,7 +19,9 @@
         $scope.routeData = null;
         $scope.showloader = false;
         $scope.routeInfo = [];
+        $scope.evacZone = 0.5;
         $scope.tankCarDesignSplit = false;
+        
         $scope.minimizetankCarDesignSplit = false;
 
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true,showcross:false,placeid:null},
@@ -30,6 +32,7 @@
                           {displayName:'En-route Station 5',id:'onRoute5',visible:false,showcross:true,placeid:null},
                           {displayName:'Destination',id:'destination',visible:true,showcross:false,placeid:null}];
         var scope = $scope;
+        var locNode = null;
         var http = $http;
         var baseurl = "/geoserver/railroad/wms";
         var nodes = [];
@@ -467,6 +470,21 @@
               "collapsable" : true,
               "dblclick" : $("#my-form [name=dblclick]:checked").val() || false,
             });
+       	 
+       	$('#dialog-locSearch').dialog({
+		 	autoOpen: false,
+        	dialogClass: "no-close",
+        	position: { my: "left top", at: "left top", of: $('#mapdiv') },
+        	buttons:{
+        		"Close":function(){
+        			vectorSource.clear();
+            		//searchSrc.clear();
+            		//document.getElementById('searchloc').value = '';
+            		$(this).dialog('close');
+        		}
+        	}
+        	
+        });
             
             	$scope.validateCalc = function(){
             	
@@ -511,6 +529,7 @@
             
             $scope.clearStations = function()
             {
+            	document.getElementById('searchloc').value = '';
         		vectorSrc.clear();
         		for(var index =0;index<scope.nodeNames.length;index++)
     			{
@@ -593,6 +612,19 @@
         	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         	    return parts.join(".");
         	}
+        	
+        	$scope.updateEvacZone = function(){
+        		
+        		if(parseFloat($scope.evacZone))
+        		{
+        			if(nodes[0].getPlace() != null)
+        			{	
+        				document.getElementById('evacuationRequired').innerHTML = (dist >0 && dist < (1609.34 * parseFloat($scope.evacZone)) )? "Yes":"No"; // if with in 5 miles radius
+        				return;
+        			}
+        		}
+        		document.getElementById('evacuationRequired').innerHTML = 'No'
+        	};
          
             var initSearch = function initialize(elementName)
             {
@@ -611,6 +643,26 @@
            
               var autocomplete = new google.maps.places.Autocomplete(input,options);
               
+              if(elementName == "searchloc"){
+            	  google.maps.event.addListener(autocomplete, 'place_changed', function() {
+                      var place = autocomplete.getPlace();
+                      if (!place.geometry) {
+                        return;
+                      }
+                      	searchSrc.clear();
+                      	dist =0;
+                      	var newStation = new ol.Feature();
+                      	newStation.setStyle(iconStyle);
+                      	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857')));
+                      	searchSrc.addFeature(newStation);
+                     		view.setCenter(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857'));
+                     		view.setZoom(12);
+                     	 map.updateSize();
+                
+                    });
+              }
+              else
+            {
              google.maps.event.addListener(autocomplete, 'place_changed', function(a,b) {
             	
                 var place = autocomplete.getPlace();
@@ -642,11 +694,13 @@
                 		view.setZoom(7);}
 
               });
+            }
               return autocomplete;
             } // End of InitSearch
 
             angular.element(document).ready(function(){
             	map.updateSize();
+            	locNode = initSearch("searchloc"));	
             	for(var index =0;index<$scope.nodeNames.length;index++){
                 	nodes.push(initSearch($scope.nodeNames[index].id));	
                 }

@@ -77,7 +77,20 @@
 							<input id="destination" class="controls address-input" type="text" placeholder="Enter a location">
 						</div>
 					</div> -->
-
+					<fieldset class="scheduler-border" style="margin-top: 20px !important">
+						<legend class="scheduler-border">
+							<h4>Location search</h4>
+						</legend>
+						<div class="form-group form-group-sm">
+							<label for="noOfCars" class="col-sm-4 control-label">Search
+								address</label>
+							<div class="col-sm-8">
+								<input type="text" id="searchloc"
+									class="form-control"
+									placeholder="Search for local address...">
+							</div>
+						</div>
+					</fieldset>
 					<fieldset class="scheduler-border"
 						style="margin-top: 20px !important">
 						<legend class="scheduler-border">
@@ -272,6 +285,41 @@
 		</div>
 	</div>
 	
+	<div id="dialog-locSearch" title="Annual Segment Risk" >
+				<div class="row">
+				<div class="col-md-12">
+					<table class="table table-bordered fontupdate">
+						<tbody>
+							<tr>
+								<td><b>Annual release risk </br>(number of affected persons)
+								</b></td>
+								<td style="width: 85px;"><b><span id="loc-riskcontent"></span></b></td>
+							</tr>
+							<tr>
+								<td><b>Interval (years) between release incidents</b></td>
+								<td style="width: 85px;"><b><span id="loc-intervalcontent"></span></b></td>
+							</tr>
+							<tr>
+								<td><b>Segment miles</b></td>
+								<td style="width: 85px;"><b><span id="loc-segmentlength"></span></b></td>
+							</tr>
+							<tr>
+								<td><b>Within evacuation Zone 
+								<div class="form-group form-group-sm">
+								<input type="text" class="form-control"
+									id="evacZone" ng-model="evacZone" ng-change = "updateEvacZone()"
+									placeholder="Evac Radius..." ></div>( Miles radius)
+								</b></td>
+								<td style="width: 85px;"><b><span
+										id="loc-evacuationRequired"></span></b></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+	</div>
+	
 	<div id="feedback" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -369,7 +417,7 @@
 	<script src="js/ie10-viewport-bug-workaround.js"></script>
 	<script type="text/javascript" src="js/angular.min.js"></script>
 	<script type="text/javascript" src="js/ng-grid.js"></script>
-	<script type="text/javascript" src="js/routerisk.js"></script>
+	<script type="text/javascript" src="js/combined.js"></script>
 	<script
 		src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
 	<!-- <script src="js/test.js"></script> -->

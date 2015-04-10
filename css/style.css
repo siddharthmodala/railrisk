@@ -263,10 +263,25 @@ background: #1995dc !important;
 }
 
 .font-sm{
-font-size:9px;	
+  font-size: 15px;
+  color: #dE0000;
+  font-weight: bold;
+}
+
+.logo-bg{
+	background:url('../js/img/Rutgers_logotype.gif');
+	background-size:200px 60px;
+	background-repeat:no-repeat;
+	background-position:left bottom;
+	padding-bottom: 60px !important;
 }
 
 .ngRow.selected{
 	
 	background-color:#8ab5be !important;
 }
+
+/* .ui-dialog .ui-dialog-titlebar-buttonpane>a { float: right; }.ui-dialog .ui-dialog-titlebar-restore { width: 19px; height: 18px; }.ui-dialog .ui-dialog-titlebar-restore span { display: block; margin: 1px; }.ui-dialog .ui-dialog-titlebar-restore:hover,.ui-dialog .ui-dialog-titlebar-restore:focus { padding: 0; }.ui-dialog .ui-dialog-titlebar ::selection { background-color: transparent; } */
+/* .ui-dialog .ui-dialog-titlebar-collapse { width: 19px; height: 18px; }.ui-dialog .ui-dialog-titlebar-collapse span { display: block; margin: 1px; }.ui-dialog .ui-dialog-titlebar-collapse:hover,.ui-dialog .ui-dialog-titlebar-collapse:focus { padding: 0; } */
+/* .ui-dialog .ui-dialog-titlebar-maximize { width: 19px; height: 18px; }.ui-dialog .ui-dialog-titlebar-maximize span { display: block; margin: 1px; }.ui-dialog .ui-dialog-titlebar-maximize:hover,.ui-dialog .ui-dialog-titlebar-maximize:focus { padding: 0; } */
+/* .ui-dialog .ui-dialog-titlebar-minimize { width: 19px; height: 18px; }.ui-dialog .ui-dialog-titlebar-minimize span { display: block; margin: 1px; }.ui-dialog .ui-dialog-titlebar-minimize:hover,.ui-dialog .ui-dialog-titlebar-minimize:focus { padding: 0; } */
