@@ -21,6 +21,7 @@
         $scope.routeInfo = [];
         $scope.tankCarDesignSplit = false;
         $scope.minimizetankCarDesignSplit = false;
+        $scope.username="siddharth";
 
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true,showcross:false,placeid:null},
                           {displayName:'En-route Station 1',id:'onRoute1',visible:false,showcross:true,placeid:null},
@@ -587,6 +588,24 @@
         	
         	$scope.minimizeCarDesignSplit  = function(){
         		$scope.minimizetankCarDesignSplit = !$scope.minimizetankCarDesignSplit;
+        	}
+        	$scope.submitFeedback = function(){
+        		
+        		var data = {
+        				'username': $scope.username,
+        				'orgname':$scope.orgname,
+        				'message':$scope.message,
+        				'senderemail':$scope.senderemail,
+        				'phone':$scope.phone
+        		};
+        		
+        		$http.post('feedback',JSON.stringify(data),{}).success(function(data){
+        			alert(data);
+        			document.getElementById("feedbackCancel").click();
+        		}).error(function(){
+        			alert("Your feedback failed to reach us. Please Try again.");
+        		});
+        		
         	}
         	function numberWithCommas(x) {
         	    var parts = x.toString().split(".");

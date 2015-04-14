@@ -700,7 +700,7 @@
 
             angular.element(document).ready(function(){
             	map.updateSize();
-            	locNode = initSearch("searchloc"));	
+            	locNode = initSearch("searchloc");	
             	for(var index =0;index<$scope.nodeNames.length;index++){
                 	nodes.push(initSearch($scope.nodeNames[index].id));	
                 }
