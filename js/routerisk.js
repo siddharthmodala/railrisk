@@ -21,7 +21,11 @@
         $scope.routeInfo = [];
         $scope.tankCarDesignSplit = false;
         $scope.minimizetankCarDesignSplit = false;
-        $scope.username="siddharth";
+        $scope.username='';
+        $scope.orgname = '';
+        $scope.phone='';
+        $scope.senderemail='';
+        $scope.message = '';
 
         $scope.nodeNames=[{displayName:'Origin',id:'origin',visible:true,showcross:false,placeid:null},
                           {displayName:'En-route Station 1',id:'onRoute1',visible:false,showcross:true,placeid:null},
@@ -591,6 +595,8 @@
         	}
         	$scope.submitFeedback = function(){
         		
+        		if(($scope.username =='' | $scope.orgname =='' | $scope.message =='' | $scope.senderemail =='' ))
+        			return;
         		var data = {
         				'username': $scope.username,
         				'orgname':$scope.orgname,
@@ -601,10 +607,11 @@
         		
         		$http.post('feedback',JSON.stringify(data),{}).success(function(data){
         			alert(data);
-        			document.getElementById("feedbackCancel").click();
         		}).error(function(){
         			alert("Your feedback failed to reach us. Please Try again.");
         		});
+        		
+        		document.getElementById("feedbackCancel").click();
         		
         	}
         	function numberWithCommas(x) {
