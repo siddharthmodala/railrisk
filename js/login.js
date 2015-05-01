@@ -8,7 +8,7 @@
     	$scope.submitButton = function(){
     		if($scope.pass == "risk")
     			{
-    				$window.location.href = 'route.html';
+    				$window.location.href = 'index.html';
     			}
     	};
     	

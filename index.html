@@ -46,7 +46,7 @@
 	</nav>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-sm-4 col-md-3 sidebar transition logo-bg" id="formdiv">
+			<div class="col-sm-4 col-md-3 sidebar transition" id="formdiv">
 				<form name="test" action="#" class="form-horizontal">
 					<fieldset class="scheduler-border">
 						<legend class="scheduler-border">
@@ -131,18 +131,33 @@
 					</fieldset>
 
 				</form>
-				<div class="row">
-					<p style = "color:red">
-					Note: All the risk values are based on hypothetical data, Actual information is not available from railways.
-					</p>
-				
+				<div class="row" style = "color:red">
+					<p style="font-size: 17px;">
+					Note: </p>
+					<ul>
+					<li>
+					All the risk values presented herein are hypothetical and illustrative only, due to proprietary information regarding railroad infrastructure characteristics.
+					</li>
+					<li>
+					The shortest-distance route was selected between the origin and destination due to lack of information on actual hazmat routes. 
+					</li>
+					</ul>
 				</div>
-<!-- 				<div id="footer1"> -->
-<!-- 					<img src="js/img/Rutgers_logotype.gif" -->
-<!-- 						style="display: inline-block; width: inherit; height: 15%; padding: 0px" -->
-<!-- 						alt="" /> -->
-<!-- 					<img src="js/img/Rutgers25.png"  /> -->
-<!-- 				</div> -->
+				<div class="row" style= "">
+				<p style = "color:black;font-size: 17px;">Contact Info: </p>
+					<ul style="list-style:none">
+					<li><b>Xiang Liu, Ph.D.,</b></li>
+					<li>Assistant Professor</li>
+					<li>Department of Civil and Environmental Engineering, Rutgers University </li>
+					<li>Email: xiang.liu@rutgers.edu </li>
+					<li>Phone: (848)445-2868</li>
+					</ul>			
+				</div>
+				<div id="footer1">
+					<img src="js/img/Rutgers_logotype.gif"
+						style="z-index: -10000; display: inline-block; width: inherit; height: 15%; width:80%; padding: 50px 0px 0px"
+						alt="" />
+				</div>
 			</div>
 			<div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3"
 				id="mapdiv">
@@ -203,19 +218,40 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="myModalLabel">We'd Love to Hear From You</h3>
+        <h3 id="myModalLabel">We appreciate your feedback</h3>
       </div>
       <div class="modal-body">
-        <form class="form-horizontal col-sm-12">
-          <div class="form-group"><label>Name</label><input class="form-control required" placeholder="Your name" data-placement="top" data-trigger="manual" data-content="Must be at least 3 characters long, and must only contain letters." type="text"></div>
-          <div class="form-group"><label>Message</label><textarea class="form-control" placeholder="Your message here.." data-placement="top" data-trigger="manual"></textarea></div>
-          <div class="form-group"><label>E-Mail</label><input class="form-control email" placeholder="email@you.com (so that we can contact you)" data-placement="top" data-trigger="manual" data-content="Must be a valid e-mail address (user@gmail.com)" type="text"></div>
-          <div class="form-group"><label>Phone</label><input class="form-control phone" placeholder="999-999-9999" data-placement="top" data-trigger="manual" data-content="Must be a valid phone number (999-999-9999)" type="text"></div>
-          <div class="form-group"><button type="submit" class="btn btn-success pull-right">Send It!</button> <p class="help-block pull-left text-danger hide" id="form-error">&nbsp; The form is not valid. </p></div>
+        <form class="form-horizontal col-sm-12" name="feedbackForm">
+          <div class="form-group">
+          <label>Name</label>
+          <input class="form-control required" placeholder="Your name" type="text"  ng-model="username" required>
+          </div>
+          <div class="form-group">
+          <label>Company/Organization (Optional)</label>
+          <input class="form-control required" placeholder="Company Name/Organization Name" type="text" ng-model="orgname" required>
+          </div>
+          <div class="form-group">
+          <label>Message</label>
+          <textarea class="form-control" placeholder="Your message here.."  data-trigger="manual"  ng-model="message" required></textarea>
+          </div>
+          <div class="form-group">
+          <label>E-Mail</label>
+          <input class="form-control email" placeholder="email@you.com (so that we can contact you)" data-placement="top"  type="text"
+          ng-model="senderemail" required>
+          </div>
+          <div class="form-group">
+          <label>Phone</label>
+          <input class="form-control phone" placeholder="999-999-9999"  type="text"
+          ng-model="phone">
+          </div>
+          <div class="form-group">
+          <button type="submit" class="btn btn-success pull-right" ng-click="submitFeedback()" >Send It!</button> <p class="help-block pull-left text-danger hide" id="form-error">&nbsp; The form is not valid. </p>
+          </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+      	<span style="align:left">
+      		<button class="btn" data-dismiss="modal" aria-hidden="true" id="feedbackCancel">Cancel</button>
       </div>
     </div>
   </div>

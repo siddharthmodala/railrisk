@@ -47,7 +47,7 @@
 
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-sm-4 col-md-3 sidebar transition logo-bg" id="formdiv">
+			<div class="col-sm-4 col-md-3 sidebar transition" id="formdiv">
 				<form name="test" action="#" class="form-horizontal">
 					<fieldset class="scheduler-border">
 						<legend class="scheduler-border">
@@ -153,17 +153,33 @@
 						ng-click="clearAll()" ng-disabled="showloader">Clear All</button>
 					<img alt="calculating route..." src="js/img/ajax-loader.gif" ng-show="showloader">
 				</form>
-				<div class="row">
-					<p style = "color:red">
-					Note: All the risk values are based on hypothetical data, Actual information is not available from railways.
-					</p>
-				
+				<div class="row" style = "color:red">
+					<p style="font-size: 17px;">
+					Note: </p>
+					<ul>
+					<li>
+					All the risk values presented herein are hypothetical and illustrative only, due to proprietary information regarding railroad infrastructure characteristics.
+					</li>
+					<li>
+					The shortest-distance route was selected between the origin and destination due to lack of information on actual hazmat routes. 
+					</li>
+					</ul>
 				</div>
-<!-- 				<div id="footer1"> -->
-<!-- 					<img src="js/img/Rutgers_logotype.gif" -->
-<!-- 						style="z-index: -10000; display: inline-block; width: inherit; height: 15%; padding: 0px" -->
-<!-- 						alt="" /> -->
-<!-- 				</div> -->
+				<div class="row" style= "">
+				<p style = "color:black;font-size: 17px;">Contact Info: </p>
+					<ul style="list-style:none">
+					<li><b>Xiang Liu, Ph.D.,</b></li>
+					<li>Assistant Professor</li>
+					<li>Department of Civil and Environmental Engineering, Rutgers University </li>
+					<li>Email: xiang.liu@rutgers.edu </li>
+					<li>Phone: (848)445-2868</li>
+					</ul>			
+				</div>
+				<div id="footer1">
+					<img src="js/img/Rutgers_logotype.gif"
+						style="z-index: -10000; display: inline-block; width: inherit; height: 15%; width:80%; padding: 50px 0px 0px"
+						alt="" />
+				</div>
 			</div>
 			<div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3"
 				id="mapdiv">
@@ -257,7 +273,6 @@
       </div>
       <div class="modal-footer">
       	<span style="align:left">
-      		Or, directly contact: Xiang Liu, Xiang.liu@rutgers.edu</span>
       		<button class="btn" data-dismiss="modal" aria-hidden="true" id="feedbackCancel">Cancel</button>
       </div>
     </div>

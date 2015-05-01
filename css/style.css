@@ -149,13 +149,7 @@ body {
 
 #footer1 {
 	position: relative;
-    bottom: 10px;
-    line-height: 2;
-    text-align: center;
-    color: #042E64;
-    font-size: 30px;
-    font-family: sans-serif;
-    font-weight: bold;
+    bottom: 35px;
 }
 
 fieldset.scheduler-border {
@@ -264,7 +258,7 @@ background: #1995dc !important;
 
 .font-sm{
   font-size: 15px;
-  color: #dd2200;
+  color: yellow;
   font-weight: bold;
 }
 

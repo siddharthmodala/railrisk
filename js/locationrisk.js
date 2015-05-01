@@ -214,6 +214,27 @@
             		document.getElementById('evacuationRequired').innerHTML = 'No'
             	};
             	
+            	$scope.submitFeedback = function(){
+            		
+            		if(($scope.username =='' | $scope.orgname =='' | $scope.message =='' | $scope.senderemail =='' ))
+            			return;
+            		var data = {
+            				'username': $scope.username,
+            				'orgname':$scope.orgname,
+            				'message':$scope.message,
+            				'senderemail':$scope.senderemail,
+            				'phone':$scope.phone
+            		};
+            		
+            		$http.post('feedback',JSON.stringify(data),{}).success(function(data){
+            			alert(data);
+            		}).error(function(){
+            			alert("Your feedback failed to reach us. Please Try again.");
+            		});
+            		
+            		document.getElementById("feedbackCancel").click();
+            		
+            	}
             	var formstate = true;
             	$scope.toggleDiv = function()
             	{
