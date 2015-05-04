@@ -48,7 +48,7 @@ public class EmailClient extends HttpServlet {
     static final String SMTP_PASSWORD = "AuaMTJL9DVe7WUGWFWwIVbuThT1QOzTXHsAldX5gUM1t";  // Replace with your SMTP password.
     
     static final String HOST = "email-smtp.us-west-2.amazonaws.com";
-    
+    static final String TO = "tosiddharthsagar@gmail.com";
     static final String PORT = "25";
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -56,17 +56,9 @@ public class EmailClient extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		 // Recipient's email ID needs to be mentioned.
-	      String TO = "tosiddharthsagar@gmail.com";
-	 
-
-	 
-	      // Assuming you are sending email from localhost
-	      //String host = "smtp.gmail.com";
-	 
+		
 	      // Get system properties
 	      Properties properties = System.getProperties();
-	      //properties.setProperty("mail.smtps.auth", "true");
-	      //properties.setProperty("mail.smtps.debug", "true");
 	      
 	      properties.setProperty("mail.transport.protocol", "smtp");
 	      properties.setProperty("mail.smtp.port", PORT );
@@ -74,35 +66,14 @@ public class EmailClient extends HttpServlet {
 	      properties.setProperty("mail.smtp.starttls.enable", "true");
 	      properties.setProperty("mail.smtp.starttls.required", "true");
 	      
-	      // Setup mail server
-//	      properties.setProperty("mail.smtp.host", host);
-//	      properties.setProperty("mail.smtp.socketFactory.port", "465");
-//	      properties.setProperty("mail.smtp.socketFactory.class",
-//					"javax.net.ssl.SSLSocketFactory");
-//		  properties.setProperty("mail.smtp.auth", "true");
-//		  properties.setProperty("mail.smtp.port", "465");
-//		  properties.setProperty("mail.smtp.user",from);
-//	      properties.setProperty("mail.smtp.password", pass);
-//	      //properties.setProperty("mail.smtp.starttls.enable","true");
-//	      properties.setProperty("mail.smtp.debug", "true");
-//	      properties.setProperty("mail.smtp.socketFactory.fallback", "false");
-
-	      
 	      Session session = Session.getDefaultInstance(properties);//,
-//	  			new javax.mail.Authenticator() {
-//	  				protected PasswordAuthentication getPasswordAuthentication() {
-//	  					return new PasswordAuthentication(from,pass);
-//	  				}
-//	  			});
-	      session.setDebug(true);
+
+	      //session.setDebug(true);
 	      String res ="Feedback not sent";
-	   // Set response content type
+	      // Set response content type
   	      response.setContentType("text/html");
   	      PrintWriter out = response.getWriter();
-	  		try {
-	 
-	  		
-	  	      
+	  		try {  
 	  	      StringBuffer sb = new StringBuffer();
 	  	      BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
 	  	      
@@ -115,7 +86,6 @@ public class EmailClient extends HttpServlet {
 	  	      JsonReader jr = Json.createReader(new StringReader(sb.toString()));
 	  	      
 	  	      JsonObject jo = jr.readObject();
-	  	      
 	  	      
 	  	      String username = jo.getString("username");
 	  	      String orgname = jo.getString("orgname");
@@ -145,7 +115,7 @@ public class EmailClient extends HttpServlet {
 		         transport.close();  
 		         System.out.println("Email sent!");
 		       //Transport.send(message);
-		       res = "Sent Feedback successfully....";
+		       res = "Feedback sent successfully. Thank you.";
 			} catch (MessagingException e) {
 				res = "Error while sending feedback";
 				System.out.println("The email was not sent.");
