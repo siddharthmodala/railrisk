@@ -1,0 +1,4 @@
+#setting on whome to send the emails and through which email
+from=railroadrisk@gmail.com
+pass=railrisk123
+to=tosiddharthsagar@gmail.com
