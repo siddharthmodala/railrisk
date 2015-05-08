@@ -171,7 +171,7 @@
             	                dist =0;
             	                if(nodes[0].getPlace() != null)
             	                	{
-            	                		var temppoint = [nodes[0].getPlace().geometry.location.D , nodes[0].getPlace().geometry.location.k];
+            	                		var temppoint = [nodes[0].getPlace().geometry.location.lng() , nodes[0].getPlace().geometry.location.lat()];
             	                		var linepoint = data.features[0].geometry.coordinates[0];
             	                		//var temp = new ol.geom.LineString([temppoint,linepoint[0]]);
             	                		//var dist = Math.round(temp.getLength() * 100) / 100
@@ -300,9 +300,9 @@
                     	dist =0;
                     	var newStation = new ol.Feature();
                     	newStation.setStyle(iconStyle);
-                    	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857')));
+                    	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.lng(),place.geometry.location.lat()],'EPSG:4326','EPSG:3857')));
                     	searchSrc.addFeature(newStation);
-                   		view.setCenter(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857'));
+                   		view.setCenter(ol.proj.transform([place.geometry.location.lng(),place.geometry.location.lat()],'EPSG:4326','EPSG:3857'));
                    		view.setZoom(12);
                    	 map.updateSize();
                    /* }*/

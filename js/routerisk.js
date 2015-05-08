@@ -318,8 +318,8 @@
             $scope.calculateSubRisk = function(src,dest,lastCall)
             {
             	var viewparams = [
-    		        		      'x1:' + src.getPlace().geometry.location.D, 'y1:' + src.getPlace().geometry.location.k,
-    		        		      'x2:' + dest.getPlace().geometry.location.D, 'y2:' + dest.getPlace().geometry.location.k
+    		        		      'x1:' + src.getPlace().geometry.location.lng(), 'y1:' + src.getPlace().geometry.location.lat(),
+    		        		      'x2:' + dest.getPlace().geometry.location.lng(), 'y2:' + dest.getPlace().geometry.location.lat()
     		        		    ];
     		        		               		        		    
     		        		    var featureurl = "/geoserver/railroad/ows?service=WFS&version=1.3.0&request=GetFeature" +
@@ -378,7 +378,7 @@
 	    		            	                document.getElementById('routeLength').innerHTML =numberWithCommas(parseFloat(scope.routeLength).toFixed(1));
 	    		            	                $('#dialog').dialog('open');
 	    		            	                
-	    		        		    			//popup.setPosition(ol.proj.transform([dest.getPlace().geometry.location.D,dest.getPlace().geometry.location.k],'EPSG:4326','EPSG:3857'));
+	    		        		    			//popup.setPosition(ol.proj.transform([dest.getPlace().geometry.location.lng(),dest.getPlace().geometry.location.lat()],'EPSG:4326','EPSG:3857'));
 	    		        		    			//data.totalFeatures = data.features.length;
 	    		        		    			 		        		    				    		 
 	    		        		    			var geoData = new ol.format.GeoJSON().readFeatures(scope.routeData,{'featureProjection':'EPSG:3857'});
@@ -654,7 +654,7 @@
                 	var newStation = new ol.Feature();
                 	newStation.setStyle(iconStyle);
                 	newStation.setId(place.place_id);
-                	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857')));
+                	newStation.setGeometry(new ol.geom.Point(ol.proj.transform([place.geometry.location.lng(),place.geometry.location.lat()],'EPSG:4326','EPSG:3857')));
                 	if(ind < nodes.length && scope.nodeNames[ind].placeid)
                     {
                     	vectorSrc.removeFeature(vectorSrc.getFeatureById(scope.nodeNames[ind].placeid));
@@ -664,7 +664,7 @@
                 	if(vectorSrc.getFeatures().length > 1)
                 		view.fitExtent(vectorLayer.getSource().getExtent(),map.getSize());
                 	else
-                		{view.setCenter(ol.proj.transform([place.geometry.location.D,place.geometry.location.k],'EPSG:4326','EPSG:3857'));
+                		{view.setCenter(ol.proj.transform([place.geometry.location.lng(),place.geometry.location.lat()],'EPSG:4326','EPSG:3857'));
                 		view.setZoom(7);}
 
               });
